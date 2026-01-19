@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | ElderConnect</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      .auth-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #e8f5e9 0%, #f8fafc 100%);
+        padding: 20px;
+      }
+      .auth-card {
+        background: white;
+        padding: 50px;
+        border-radius: 24px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        max-width: 450px;
+        width: 100%;
+      }
+      .auth-header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+      .auth-logo {
+        font-size: 3rem;
+        color: var(--primary);
+        margin-bottom: 15px;
+      }
+      .auth-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--text-main);
+        margin-bottom: 8px;
+      }
+      .auth-subtitle {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+      }
+      .form-group {
+        margin-bottom: 25px;
+      }
+      .form-label {
+        display: block;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--text-main);
+        margin-bottom: 10px;
+      }
+      .form-input {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s;
+      }
+      .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-light);
+      }
+      .btn-submit {
+        width: 100%;
+        padding: 16px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .btn-submit:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(76, 175, 80, 0.3);
+      }
+      .auth-footer {
+        text-align: center;
+        margin-top: 25px;
+        color: var(--text-muted);
+      }
+      .auth-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 700;
+      }
+      .auth-link:hover {
+        text-decoration: underline;
+      }
+      .error-message {
+        background: #fee;
+        color: #c33;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="auth-container">
+      <div class="auth-card animate-slide">
+        <div class="auth-header">
+          <div class="auth-logo">
+            <i class="fas fa-hand-holding-medical"></i>
+          </div>
+          <h1 class="auth-title">Welcome Back</h1>
+          <p class="auth-subtitle">Sign in to your ElderConnect account</p>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+
+        <form id="loginForm">
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input
+              type="email"
+              class="form-input"
+              id="email"
+              placeholder="your.email@example.com"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input
+              type="password"
+              class="form-input"
+              id="password"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+
+          <button type="submit" class="btn-submit">
+            <i class="fas fa-sign-in-alt"></i> Sign In
+          </button>
+        </form>
+
+        <div class="auth-footer">
+          Don't have an account?
+          <a href="signup.html" class="auth-link">Sign Up</a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_URL = "http://localhost:8000";
+
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+          const errorDiv = document.getElementById("errorMessage");
+
+          try {
+            const response = await fetch(`${API_URL}/auth/login`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+           
+              localStorage.setItem("token", data.access_token);
+              localStorage.setItem("user", JSON.stringify(data.user));
+
+              
+              const role = data.user.role;
+              if (role === "patient") {
+                window.location.href = "patient-dashboard.html";
+              } else if (role === "nurse") {
+                window.location.href = "nurse-dashboard.html";
+              } else if (role === "oah_manager") {
+                window.location.href = "oah-dashboard.html";
+              }
+            } else {
+              errorDiv.textContent =
+                data.detail || "Login failed. Please check your credentials.";
+              errorDiv.style.display = "block";
+            }
+          } catch (error) {
+            errorDiv.textContent =
+              "Connection error. Please make sure the backend is running.";
+            errorDiv.style.display = "block";
+            console.error("Error:", error);
+          }
+        });
+    </script>
+  </body>
+</html>
+

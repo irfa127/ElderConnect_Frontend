@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manager Dashboard | ElderConnect</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/oah.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <a href="index.html" class="nav-brand">
+        <i class="fas fa-hand-holding-medical"></i> ElderConnect
+      </a>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a href="oah-dashboard.html" class="nav-link active"><i class="fas fa-columns"></i> Overview</a>
+        </li>
+        <li class="nav-item">
+          <a href="oah-portal.html" class="nav-link"><i class="fas fa-hotel"></i> Manage Home</a>
+        </li>
+        <li class="nav-item">
+          <a href="oah-inquiries.html" class="nav-link" style="position: relative"><i
+              class="fas fa-envelope-open-text"></i> Inquiries
+            <span class="notification-dot"></span></a>
+        </li>
+        <li class="nav-item">
+          <a href="oah-residents.html" class="nav-link"><i class="fas fa-users-cog"></i> Resident List</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="section-head">
+        <div>
+          <h1 class="page-title">Harmony Gardens Dashboard</h1>
+          <p style="color: var(--text-muted); margin-top: 5px">
+            You have 3 new resident inquiries today.
+          </p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 20px">
+          <button class="btn btn-outline"><i class="fas fa-bell"></i></button>
+          <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100" alt="Manager" style="
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+                border: 2px solid white;
+                box-shadow: var(--card-shadow);
+              " />
+        </div>
+      </header>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-label">Active Residents</span>
+          <div class="stat-value" style="color: #059669" id="statResidents">--</div>
+          <span class="badge badge-success">Occupancy</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Pending Inquiries</span>
+          <div class="stat-value" style="color: var(--primary)" id="statPending">--</div>
+          <span class="badge badge-info">Action Required</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Monthly Revenue</span>
+          <div class="stat-value" style="color: var(--text-main)" id="statRevenue">--</div>
+          <span class="badge badge-warning">Estimated</span>
+        </div>
+      </div>
+
+      <h3 style="font-weight: 800; font-size: 1.25rem; margin-bottom: 25px">
+        Recent Inquiries
+      </h3>
+
+      <div class="animate-slide" id="recentInquiriesContainer">
+        <p style="text-align: center; color: var(--text-muted);">Loading inquiries...</p>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/main.js"></script>
+  <script>
+    const API_URL = "http://localhost:8000";
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      // Auth check
+      const userStr = localStorage.getItem("user");
+      if (!userStr) { window.location.href = 'login.html'; return; }
+      const user = JSON.parse(userStr);
+      if (user.role !== 'oah_manager') {
+        alert("Access Denied");
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Greeting update
+      const headerTitle = document.querySelector("header h1");
+      if (headerTitle) headerTitle.innerText = `Welcome, ${user.full_name}`;
+
+      try {
+        // 1. Get managed community
+        const commResponse = await fetch(`${API_URL}/communities/manager/${user.id}`);
+        if (!commResponse.ok) throw new Error("Failed to fetch community");
+        const communities = await commResponse.json();
+
+        if (!communities || communities.length === 0) {
+          document.getElementById("recentInquiriesContainer").innerHTML =
+            `<p style="text-align:center;">You haven't set up a community yet. Go to <a href="oah-portal.html">Manage Home</a>.</p>`;
+          return;
+        }
+
+        const community = communities[0]; // Assume single community management
+        if (headerTitle) headerTitle.innerText = `${community.name} Dashboard`;
+
+        // Calculate Revenue Estimate
+        // Extract numbers from pricing string like "Starts at ₹40,000/month" -> 40000
+        const priceStr = community.pricing || "0";
+        const price = parseInt(priceStr.replace(/[^0-9]/g, '')) || 0;
+
+        // 2. Get Inquiries
+        const inqResponse = await fetch(`${API_URL}/inquiries/community/${community.id}`);
+        const inquiries = await inqResponse.json();
+
+        // 3. Calculate Stats
+        const pendingCount = inquiries.filter(i => i.status === 'pending').length;
+        const acceptedCount = inquiries.filter(i => i.status === 'accepted').length;
+
+        document.getElementById("statResidents").innerText = acceptedCount;
+        document.getElementById("statPending").innerText = pendingCount;
+
+        if (price > 0 && acceptedCount > 0) {
+          const revenueLakhs = (acceptedCount * price) / 100000;
+          document.getElementById("statRevenue").innerText = `₹${revenueLakhs.toFixed(2)}L`;
+        } else {
+          document.getElementById("statRevenue").innerText = "₹0";
+        }
+
+        // 4. Render Recent Inquiries (Limit 5)
+        const container = document.getElementById("recentInquiriesContainer");
+        container.innerHTML = "";
+
+        if (inquiries.length === 0) {
+          container.innerHTML = `<p style="text-align: center;">No inquiries found.</p>`;
+        } else {
+          // Sort by newest
+          const recentInqs = inquiries.reverse().slice(0, 5);
+
+          for (const inq of recentInqs) {
+            const card = document.createElement("div");
+            card.className = "inquiry-card";
+            card.innerHTML = `
+              <div class="resident-info">
+                <h4>${inq.resident_name || inq.applicant_name} <span style="font-size:0.8em; font-weight:normal; color:#666;">(Age: ${inq.resident_age || 'N/A'})</span></h4>
+                <p>
+                  <i class="fas fa-user-tag"></i> Status: <strong style="color: ${inq.status === 'pending' ? 'var(--warning)' : '#10b981'}">${inq.status.toUpperCase()}</strong>
+                  • <i class="fas fa-calendar-alt"></i> Move-in: ${inq.move_in_date || 'TBD'}
+                </p>
+                <div style="margin-top: 8px; font-size: 0.8rem; color: #64748b">
+                   <i class="fas fa-notes-medical"></i> Needs: ${inq.medical_needs || "None listed"}
+                </div>
+              </div>
+              <div class="inquiry-actions">
+                <button class="btn btn-outline btn-small" onclick="viewInquiryDetails(${inq.id})">
+                  View Details
+                </button>
+                ${inq.status === 'pending' ?
+                `<button class="btn btn-primary btn-small" style="background: #059669" onclick="updateInquiryStatus(${inq.id}, 'accepted')">
+                    Accept
+                   </button>` :
+                `<button class="btn btn-outline btn-small" disabled>Accepted</button>`
+              }
+              </div>
+            `;
+            container.appendChild(card);
+          }
+        }
+
+        // Make inquiries available globally for View Details
+        window.currentInquiries = inquiries;
+
+      } catch (e) {
+        console.error("Dashboard error:", e);
+        document.getElementById("recentInquiriesContainer").innerHTML = "<p style='color:red; text-align:center;'>Error loading dashboard data. Please check backend.</p>";
+      }
+    });
+
+    async function updateInquiryStatus(id, newStatus) {
+      if (!confirm(`Mark this inquiry as ${newStatus}?`)) return;
+      try {
+        const response = await fetch(`${API_URL}/inquiries/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus }),
+        });
+
+        if (response.ok) {
+          showToast(`Inquiry marked as ${newStatus}`, "success");
+          setTimeout(() => location.reload(), 1000);
+        } else {
+          showToast("Failed to update status", "error");
+        }
+      } catch (e) {
+        console.error(e);
+        showToast("Error updating status: " + e.message, "error");
+      }
+    }
+
+    function viewInquiryDetails(id) {
+      const inq = window.currentInquiries.find(i => i.id === id);
+      if (!inq) return;
+      // Simple alert for now as requested/mocked functionality implies detail view isn't built
+      alert(`
+         Inquiry Details:
+         Resident: ${inq.resident_name}
+         Age: ${inq.resident_age}
+         Applicant: ${inq.applicant_name} (${inq.relation})
+         Contact: ${inq.applicant_phone} | ${inq.applicant_email}
+         Needs: ${inq.medical_needs}
+         Requests: ${inq.special_requests}
+       `);
+    }
+  </script>
+</body>
+
+</html>

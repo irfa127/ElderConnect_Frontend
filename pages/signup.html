@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up | ElderConnect</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      .auth-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #e8f5e9 0%, #f8fafc 100%);
+        padding: 40px 20px;
+      }
+      .auth-card {
+        background: white;
+        padding: 50px;
+        border-radius: 24px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        max-width: 550px;
+        width: 100%;
+      }
+      .auth-header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+      .auth-logo {
+        font-size: 3rem;
+        color: var(--primary);
+        margin-bottom: 15px;
+      }
+      .auth-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--text-main);
+        margin-bottom: 8px;
+      }
+      .auth-subtitle {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+      }
+      .form-group {
+        margin-bottom: 20px;
+      }
+      .form-label {
+        display: block;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--text-main);
+        margin-bottom: 8px;
+      }
+      .form-input,
+      .form-select {
+        width: 100%;
+        padding: 14px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+      }
+      .form-input:focus,
+      .form-select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-light);
+      }
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+      .role-selector {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 25px;
+      }
+      .role-option {
+        padding: 15px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .role-option:hover {
+        border-color: var(--primary);
+        background: var(--primary-light);
+      }
+      .role-option.active {
+        border-color: var(--primary);
+        background: var(--primary);
+        color: white;
+      }
+      .role-option i {
+        font-size: 1.5rem;
+        display: block;
+        margin-bottom: 8px;
+      }
+      .role-option span {
+        font-size: 0.85rem;
+        font-weight: 700;
+      }
+      .btn-submit {
+        width: 100%;
+        padding: 16px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .btn-submit:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(76, 175, 80, 0.3);
+      }
+      .auth-footer {
+        text-align: center;
+        margin-top: 25px;
+        color: var(--text-muted);
+      }
+      .auth-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 700;
+      }
+      .auth-link:hover {
+        text-decoration: underline;
+      }
+      .error-message {
+        background: #fee;
+        color: #c33;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+      }
+      .success-message {
+        background: #efe;
+        color: #3c3;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="auth-container">
+      <div class="auth-card animate-slide">
+        <div class="auth-header">
+          <div class="auth-logo">
+            <i class="fas fa-hand-holding-medical"></i>
+          </div>
+          <h1 class="auth-title">Create Account</h1>
+          <p class="auth-subtitle">Join ElderConnect and start your journey</p>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="success-message"></div>
+
+        <form id="signupForm">
+          <div class="form-group">
+            <label class="form-label">I am a...</label>
+            <div class="role-selector">
+              <div class="role-option active" data-role="patient">
+                <i class="fas fa-user"></i>
+                <span>Patient</span>
+              </div>
+              <div class="role-option" data-role="nurse">
+                <i class="fas fa-user-nurse"></i>
+                <span>Nurse</span>
+              </div>
+              <div class="role-option" data-role="oah_manager">
+                <i class="fas fa-building"></i>
+                <span>Old age home</span>
+              </div>
+            </div>
+            <input type="hidden" id="role" value="patient" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input
+              type="text"
+              class="form-input"
+              id="fullName"
+              placeholder="Irfana Nasrin"
+              required
+            />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Username</label>
+              <input
+                type="text"
+                class="form-input"
+                id="username"
+                placeholder="Irfahis"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone</label>
+              <input
+                type="tel"
+                class="form-input"
+                id="phone"
+                placeholder="9167894327"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input
+              type="email"
+              class="form-input"
+              id="email"
+              placeholder="your.email@example.com"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input
+              type="password"
+              class="form-input"
+              id="password"
+              placeholder="Create a strong password"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Address</label>
+            <input
+              type="text"
+              class="form-input"
+              id="address"
+              placeholder="City, State"
+            />
+          </div>
+
+          <button type="submit" class="btn-submit">
+            <i class="fas fa-user-plus"></i> Create Account
+          </button>
+        </form>
+
+        <div class="auth-footer">
+          Already have an account?
+          <a href="login.html" class="auth-link">Sign In</a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_URL = "http://localhost:8000";
+
+     
+      document.querySelectorAll(".role-option").forEach((option) => {
+        option.addEventListener("click", () => {
+          document
+            .querySelectorAll(".role-option")
+            .forEach((o) => o.classList.remove("active"));
+          option.classList.add("active");
+          document.getElementById("role").value = option.dataset.role;
+        });
+      });
+
+     
+      document
+        .getElementById("signupForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const errorDiv = document.getElementById("errorMessage");
+          const successDiv = document.getElementById("successMessage");
+          errorDiv.style.display = "none";
+          successDiv.style.display = "none";
+
+          const userData = {
+            email: document.getElementById("email").value,
+            username: document.getElementById("username").value,
+            full_name: document.getElementById("fullName").value,
+            password: document.getElementById("password").value,
+            role: document.getElementById("role").value,
+            phone: document.getElementById("phone").value || null,
+            address: document.getElementById("address").value || null,
+          };
+
+          try {
+            const response = await fetch(`${API_URL}/auth/signup`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(userData),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+             
+              localStorage.setItem("token", data.access_token);
+              localStorage.setItem("user", JSON.stringify(data.user));
+
+              successDiv.textContent =
+                "Account created successfully! Redirecting...";
+              successDiv.style.display = "block";
+
+          
+              setTimeout(() => {
+                const role = data.user.role;
+                if (role === "patient") {
+                  window.location.href = "patient-dashboard.html";
+                } else if (role === "nurse") {
+                  window.location.href = "nurse-dashboard.html";
+                } else if (role === "oah_manager") {
+                  window.location.href = "oah-dashboard.html";
+                }
+              }, 1500);
+            } else {
+              errorDiv.textContent =
+                data.detail || "Signup failed. Please try again.";
+              errorDiv.style.display = "block";
+            }
+          } catch (error) {
+            errorDiv.textContent =
+              "Connection error. Please make sure the backend is running.";
+            errorDiv.style.display = "block";
+            console.error("Error:", error);
+          }
+        });
+    </script>
+  </body>
+</html>
+

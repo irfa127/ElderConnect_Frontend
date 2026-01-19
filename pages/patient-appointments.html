@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Appointments | ElderConnect</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/patient.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      .apt-card-attractive {
+        background: white;
+        border-radius: 24px;
+        padding: 25px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s;
+        margin-bottom: 25px;
+        border: 1px solid #f1f5f9;
+      }
+
+      .apt-card-attractive:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+        border-color: var(--primary);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <div class="sidebar">
+        <a href="index.html" class="nav-brand">
+          <i class="fas fa-hand-holding-medical"></i> ElderConnect
+        </a>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="patient-dashboard.html" class="nav-link"
+              ><i class="fas fa-home"></i> Home</a
+            >
+          </li>
+          <li class="nav-item">
+            <a href="patient-appointments.html" class="nav-link active"
+              ><i class="fas fa-calendar-check"></i> Appointments</a
+            >
+          </li>
+          <li class="nav-item">
+            <a href="patient-senior-living.html" class="nav-link"
+              ><i class="fas fa-hotel"></i> Senior Living</a
+            >
+          </li>
+          <li class="nav-item">
+            <a href="patient-vitals.html" class="nav-link"
+              ><i class="fas fa-chart-line"></i> Health Vitals</a
+            >
+          </li>
+          <li class="nav-item">
+            <a href="patient-profile.html" class="nav-link"
+              ><i class="fas fa-user-circle"></i> My Profile</a
+            >
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link logout-link"
+              ><i class="fas fa-sign-out-alt"></i> Logout</a
+            >
+          </li>
+        </ul>
+      </div>
+
+      <main class="main-content">
+        <header class="section-head">
+          <h1 class="page-title">My Appointments</h1>
+          <button class="btn btn-primary" onclick="openBooking()">
+            <i class="fas fa-plus"></i> &nbsp; Book New Appointment
+          </button>
+        </header>
+
+        <div id="myAppointmentsContainer" class="animate-fade">
+          <p
+            style="text-align: center; padding: 20px; color: var(--text-muted)"
+          >
+            Loading your appointments...
+          </p>
+        </div>
+
+        <script>
+          let isFetching = false;
+
+          document.addEventListener("DOMContentLoaded", async () => {
+            const userStr = localStorage.getItem("user");
+            if (userStr) {
+              const user = JSON.parse(userStr);
+              fetchMyAppointments(user.id);
+              setInterval(() => fetchMyAppointments(user.id), 5000);
+            }
+          });
+
+          async function fetchMyAppointments(patientId) {
+            if (isFetching) return;
+            isFetching = true;
+
+            const container = document.getElementById(
+              "myAppointmentsContainer",
+            );
+            try {
+              const response = await fetch(
+                `http://localhost:8000/appointments/patient/${patientId}?t=${new Date().getTime()}`,
+              );
+              if (!response.ok) throw new Error("Failed to fetch");
+              const appointments = await response.json();
+
+              container.innerHTML = "";
+
+              if (appointments.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding: 40px; background: white; border-radius: 20px;">
+                            <i class="fas fa-calendar-times" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 20px;"></i>
+                            <h3>No appointments yet</h3>
+                            <p style="color: var(--text-muted)">Book your first appointment to get started!</p>
+                        </div>`;
+                return;
+              }
+
+              appointments.forEach((apt) => {
+                const date = new Date(
+                  apt.appointment_date,
+                ).toLocaleDateString();
+
+                let statusBadge = "";
+                if (apt.status === "pending")
+                  statusBadge =
+                    '<span class="badge badge-warning">Pending</span>';
+                else if (apt.status === "completed")
+                  statusBadge =
+                    '<span class="badge badge-success">Completed</span>';
+                else
+                  statusBadge = `<span class="badge badge-info"><i class="fas fa-spinner fa-spin"></i> ${apt.status
+                    .replace("-", " ")
+                    .toUpperCase()}</span>`;
+
+                const card = document.createElement("div");
+                card.className = "apt-card-attractive animate-fade";
+
+                const imageUrl = apt.nurse_image
+                  ? apt.nurse_image.startsWith("http")
+                    ? apt.nurse_image
+                    : `http://localhost:8000/${apt.nurse_image.replace(/^\/+/, "").startsWith("static/") ? "" : "static/"}${apt.nurse_image.replace(/^\/+/, "")}`
+                  : `https://ui-avatars.com/api/?name=${encodeURIComponent(apt.nurse_name)}&background=random`;
+
+                card.innerHTML = `
+                          <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px;">
+                            <div style="display: flex; gap: 20px; align-items: center">
+                              <img src="${imageUrl}" 
+                                   onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(apt.nurse_name)}&background=random'"
+                                   style="width: 60px; height: 60px; border-radius: 15px; object-fit: cover;"/>
+                              <div>
+                                <h2 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 4px;">${apt.nurse_name}</h2>
+                                <p style="color: var(--text-muted); font-size: 0.9rem;">${apt.service_type || "General Care"}</p>
+                              </div>
+                            </div>
+                            ${statusBadge}
+                          </div>
+                          
+                          <div style="display: flex; gap: 40px; margin-bottom: 20px; padding: 15px; background: #f8fafc; border-radius: 15px;">
+                            <div style="display: flex; align-items: center; gap: 10px">
+                              <i class="far fa-calendar-alt" style="color: #64748b"></i>
+                              <span style="font-weight: 600; color: #334155">${date}</span>
+                            </div>
+                             <div style="display: flex; align-items: center; gap: 10px">
+                              <i class="far fa-clock" style="color: #64748b"></i>
+                              <span style="font-weight: 600; color: #334155">${
+                                apt.appointment_time
+                              }</span>
+                            </div>
+                            </div>
+                            
+                            ${
+                              apt.notes
+                                ? `
+                                <div style="margin-top: 15px; padding: 15px; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;">
+                                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 5px; font-weight: 700;">Doctor/Nurse Notes:</p>
+                                    <p style="font-size: 0.95rem; color: #334155; white-space: pre-wrap;">${apt.notes.replace(
+                                      /\[View Medical Report\]\((.*?)\)/g,
+                                      (match, url) => {
+                                        return `<a href="#" onclick="handleViewReport('${url}', ${apt.id}, ${apt.has_review}); return false;" class="btn-link" style="color: var(--primary); font-weight: 700; text-decoration: underline;">View Medical Report <i class="fas fa-external-link-alt"></i></a>`;
+                                      },
+                                    )}</p>
+                                </div>
+                            `
+                                : ""
+                            }
+                          </div>
+                        `;
+                container.appendChild(card);
+              });
+            } catch (e) {
+              console.error(e);
+            } finally {
+              isFetching = false;
+            }
+          }
+        </script>
+      </main>
+    </div>
+
+    <div id="bookingModal" class="modal">
+      <div class="modal-content animate-slide" style="max-width: 800px">
+        <i
+          class="fas fa-times"
+          style="
+            position: absolute;
+            right: 25px;
+            top: 25px;
+            cursor: pointer;
+            color: #64748b;
+          "
+          onclick="closeBooking()"
+        ></i>
+
+        <div id="stepNurseSelection">
+          <h2 style="font-weight: 800; margin-bottom: 5px">
+            Book a New Appointment
+          </h2>
+          <p style="color: var(--text-muted); margin-bottom: 30px">
+            Select a nurse and schedule a time that works for you.
+          </p>
+
+          <div
+            class="nurse-list-container"
+            style="max-height: 50vh; overflow-y: auto"
+          >
+            <div
+              class="nurse-card"
+              style="
+                display: flex;
+                gap: 20px;
+                align-items: center;
+                padding: 20px;
+                border: 1px solid #e2e8f0;
+                border-radius: 12px;
+                margin-bottom: 15px;
+              "
+            >
+              <img
+                src="https://images.unsplash.com/photo-1559839734-2b71f1532005?w=100"
+                style="
+                  width: 80px;
+                  height: 80px;
+                  border-radius: 50%;
+                  object-fit: cover;
+                "
+              />
+              <div style="flex: 1">
+                <h4 style="font-weight: 800">Alice Smith</h4>
+                <p
+                  style="
+                    font-size: 0.85rem;
+                    color: var(--primary);
+                    font-weight: 700;
+                  "
+                >
+                  Pediatric Care • 8 years exp
+                </p>
+              </div>
+              <button
+                class="btn btn-primary"
+                onclick="selectNurse('Alice Smith')"
+              >
+                Book Now
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="stepScheduling" style="display: none">
+          <div
+            style="
+              cursor: pointer;
+              color: var(--primary);
+              font-weight: 700;
+              margin-bottom: 20px;
+            "
+            onclick="backToNurses()"
+          >
+            <i class="fas fa-arrow-left"></i> Back to nurse selection
+          </div>
+          <h2 style="font-weight: 800; margin-bottom: 30px">
+            Schedule with <span id="selectedNurseName"></span>
+          </h2>
+          <div class="form-group" style="margin-bottom: 20px">
+            <label>Preferred Date</label>
+            <input
+              type="date"
+              class="btn-outline"
+              style="width: 100%; padding: 12px; border-radius: 10px"
+            />
+          </div>
+          <div class="form-group" style="margin-bottom: 10px">
+            <label>Preferred Time</label>
+            <input
+              type="time"
+              class="btn-outline"
+              style="width: 100%; padding: 12px; border-radius: 10px"
+            />
+          </div>
+          <button
+            class="btn btn-primary"
+            style="width: 100%; margin-top: 30px"
+            onclick="finalizeBooking()"
+          >
+            Request Appointment
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="reviewModal" class="modal">
+      <div
+        class="modal-content animate-slide"
+        style="max-width: 450px; text-align: center"
+      >
+        <div
+          style="
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+          "
+          id="starContainer"
+        >
+          <!-- Stars will be injected or hardcoded -->
+          <i
+            class="fas fa-star"
+            data-value="1"
+            style="font-size: 2rem; color: #ffd700; cursor: pointer"
+          ></i>
+          <i
+            class="fas fa-star"
+            data-value="2"
+            style="font-size: 2rem; color: #ffd700; cursor: pointer"
+          ></i>
+          <i
+            class="fas fa-star"
+            data-value="3"
+            style="font-size: 2rem; color: #ffd700; cursor: pointer"
+          ></i>
+          <i
+            class="fas fa-star"
+            data-value="4"
+            style="font-size: 2rem; color: #ffd700; cursor: pointer"
+          ></i>
+          <i
+            class="fas fa-star"
+            data-value="5"
+            style="font-size: 2rem; color: #ffd700; cursor: pointer"
+          ></i>
+        </div>
+        <textarea
+          id="reviewText"
+          placeholder="Write your feedback... (Optional)"
+          style="
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            margin-bottom: 20px;
+          "
+        ></textarea>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px">
+          <button class="btn btn-outline" onclick="closeModal('reviewModal')">
+            Skip
+          </button>
+          <button class="btn btn-primary" onclick="submitReview()">
+            Submit Review
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../js/main.js"></script>
+
+    <script>
+      const bookingModal = document.getElementById("bookingModal");
+      const stepNurseSelection = document.getElementById("stepNurseSelection");
+      const stepScheduling = document.getElementById("stepScheduling");
+      const selectedNurseName = document.getElementById("selectedNurseName");
+
+      let selectedNurseId = null;
+
+      async function openBooking() {
+        bookingModal.style.display = "flex";
+        backToNurses();
+        await fetchNurses();
+      }
+
+      async function fetchNurses() {
+        const container = document.querySelector(".nurse-list-container");
+        container.innerHTML =
+          '<p style="text-align:center; padding: 20px;">Loading nurses...</p>';
+
+        try {
+          const response = await fetch("http://localhost:8000/users/nurses");
+          if (!response.ok) throw new Error("Failed to fetch nurses");
+
+          const nurses = await response.json();
+          container.innerHTML = "";
+
+          if (nurses.length === 0) {
+            container.innerHTML =
+              '<p style="text-align:center; padding: 20px;">No nurses available at the moment.</p>';
+            return;
+          }
+
+          nurses.forEach((nurse) => {
+            const card = document.createElement("div");
+            card.className = "nurse-card";
+            card.style.cssText =
+              "display: flex; gap: 20px; align-items: center; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 15px;";
+
+            card.innerHTML = `
+              <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(
+                nurse.full_name,
+              )}&background=random" 
+                   style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;" />
+              <div style="flex: 1">
+                <h4 style="font-weight: 800">${nurse.full_name}</h4>
+                <p style="font-size: 0.85rem; color: var(--primary); font-weight: 700;">
+                  Registered Nurse • ElderConnect
+                </p>
+                <p style="font-size: 0.8rem; color: #64748b;">${
+                  nurse.address || "Location N/A"
+                }</p>
+              </div>
+              <button class="btn btn-primary" onclick="selectNurse('${
+                nurse.full_name
+              }', ${nurse.id})">
+                Book Now
+              </button>
+            `;
+            container.appendChild(card);
+          });
+        } catch (error) {
+          console.error("Error fetching nurses:", error);
+          container.innerHTML =
+            '<p style="text-align:center; color: red; padding: 20px;">Error loading nurses. Please try again later.</p>';
+        }
+      }
+
+      function closeBooking() {
+        bookingModal.style.display = "none";
+      }
+
+      function selectNurse(name, id) {
+        selectedNurseName.innerText = name;
+        selectedNurseId = id;
+        stepNurseSelection.style.display = "none";
+        stepScheduling.style.display = "block";
+      }
+
+      function backToNurses() {
+        stepNurseSelection.style.display = "block";
+        stepScheduling.style.display = "none";
+      }
+
+      async function finalizeBooking() {
+        const userStr = localStorage.getItem("user");
+        if (!userStr) {
+          showToast("Please login first!");
+          window.location.href = "login.html";
+          return;
+        }
+
+        const user = JSON.parse(userStr);
+        const date = document.querySelector('input[type="date"]').value;
+        const time = document.querySelector('input[type="time"]').value;
+
+        if (!date || !time) {
+          showToast("Please select date and time");
+          return;
+        }
+
+        if (!selectedNurseId) {
+          showToast("Please select a nurse");
+          return;
+        }
+
+        const appointmentData = {
+          patient_id: user.id,
+          nurse_id: selectedNurseId,
+          appointment_date: new Date(date + "T" + time).toISOString(),
+          appointment_time: time,
+          service_type: "General Care", // Default for now
+          notes: "New appointment request",
+        };
+
+        try {
+          const response = await fetch("http://localhost:8000/appointments/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(appointmentData),
+          });
+
+          if (response.ok) {
+            showToast(
+              "Success! Appointment requested with " +
+                selectedNurseName.innerText,
+            );
+            closeBooking();
+
+            await fetchMyAppointments(user.id);
+
+            await refreshUserData(user.id);
+          } else {
+            if (response.status === 500) {
+              showToast("System updated. Please Log Out and Login again.");
+            } else {
+              const data = await response.json();
+
+              if (
+                response.status === 400 &&
+                data.detail === "Nurse not available at the selected time"
+              ) {
+                showToast(
+                  "This nurse is not available at the selected time. Please choose a different nurse or time.",
+                );
+              } else {
+                showToast(data.detail || "Failed to book appointment");
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Error booking appointment:", error);
+          showToast("Connection error");
+        }
+      }
+
+      let currentReviewAppointmentId = null;
+
+      function handleViewReport(url, appointmentId, hasReview) {
+        window.open(url, "_blank");
+
+        if (!hasReview) {
+          currentReviewAppointmentId = appointmentId;
+          openModal("reviewModal");
+        }
+      }
+
+      function closeModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+        if (modalId === "reviewModal") {
+          document.getElementById("reviewText").value = "";
+        }
+      }
+
+      let currentRating = 5;
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const starContainer = document.getElementById("starContainer");
+        if (starContainer) {
+          starContainer.querySelectorAll("i").forEach((star) => {
+            star.addEventListener("click", function () {
+              const value = parseInt(this.getAttribute("data-value"));
+              currentRating = value;
+              updateStars(value);
+            });
+          });
+        }
+      });
+
+      function updateStars(value) {
+        const starContainer = document.getElementById("starContainer");
+        if (starContainer) {
+          starContainer.querySelectorAll("i").forEach((star) => {
+            const starVal = parseInt(star.getAttribute("data-value"));
+            if (starVal <= value) {
+              star.style.color = "#ffd700";
+              star.className = "fas fa-star";
+            } else {
+              star.style.color = "#e2e8f0";
+              star.className = "far fa-star";
+            }
+          });
+        }
+      }
+
+      async function submitReview() {
+        if (!currentReviewAppointmentId) return;
+
+        const reviewText = document.getElementById("reviewText").value;
+
+        try {
+          const response = await fetch("http://localhost:8000/reviews/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              appointment_id: currentReviewAppointmentId,
+              rating: currentRating,
+              comment: reviewText,
+            }),
+          });
+
+          if (response.ok) {
+            showToast("Thank you for your feedback!");
+            closeModal("reviewModal");
+
+            const user = JSON.parse(localStorage.getItem("user"));
+            await fetchMyAppointments(user.id);
+          } else {
+            const err = await response.json();
+            showToast(err.detail || "Failed to submit review");
+          }
+        } catch (e) {
+          console.error(e);
+          showToast("Error submitting review");
+        }
+      }
+
+      function openModal(id) {
+        document.getElementById(id).style.display = "flex";
+      }
+    </script>
+  </body>
+</html>
