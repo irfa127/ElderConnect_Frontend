@@ -1,50 +1,60 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard | ElderConnect Nurse</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/nurse.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard | ElderConnect Nurse</title>
-  <link rel="stylesheet" href="../css/style.css" />
-  <link rel="stylesheet" href="../css/nurse.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-</head>
+  <body>
+    <div class="app-container">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <a href="index.html" class="nav-brand">
+          <i class="fas fa-hand-holding-medical"></i> ElderConnect
+        </a>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="nurse-dashboard.html" class="nav-link active">
+              <i class="fas fa-columns"></i> Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="nurse-portal.html" class="nav-link">
+              <i class="fas fa-calendar-check"></i> Appointment Portal
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="nurse-profile.html" class="nav-link">
+              <i class="fas fa-user-md"></i> My Profile
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link logout-link">
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+          </li>
+        </ul>
+      </div>
 
-<body>
-  <div class="app-container">
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <a href="index.html" class="nav-brand">
-        <i class="fas fa-hand-holding-medical"></i> ElderConnect
-      </a>
-      <ul class="nav-menu">
-        <li class="nav-item">
-          <a href="nurse-dashboard.html" class="nav-link active"><i class="fas fa-columns"></i> Dashboard</a>
-        </li>
-        <li class="nav-item">
-          <a href="nurse-portal.html" class="nav-link"><i class="fas fa-calendar-check"></i> Appointment Portal</a>
-        </li>
-        <li class="nav-item">
-          <a href="nurse-profile.html" class="nav-link"><i class="fas fa-user-md"></i> My Profile</a>
-        </li>
-        <li class="nav-item">
-          <a href="#" class="nav-link logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
-        </li>
-      </ul>
-    </div>
+      <main class="main-content">
+        <header class="section-head">
+          <div>
+            <h1 class="page-title">Nurse Overview</h1>
+            <p style="color: var(--text-muted); margin-top: 5px">
+              You have 8 patients assigned for today.
+            </p>
+          </div>
 
- 
-    <main class="main-content">
-      <header class="section-head">
-        <div>
-          <h1 class="page-title">Nurse Overview</h1>
-          <p style="color: var(--text-muted); margin-top: 5px">
-            You have 8 patients assigned for today.
-          </p>
-        </div>
-    
-        <div style="display: flex; align-items: center; gap: 20px">
-          <div style="
+          <div style="display: flex; align-items: center; gap: 20px">
+            <div
+              style="
                 display: flex;
                 align-items: center;
                 gap: 10px;
@@ -52,243 +62,119 @@
                 padding: 10px 20px;
                 border-radius: 30px;
                 border: 1px solid var(--border);
-              ">
-            <span style="font-size: 0.85rem; font-weight: 700">Active Status:</span>
-            <span style="
+              "
+            >
+              <span style="font-size: 0.85rem; font-weight: 700">
+                Active Status:
+              </span>
+              <span
+                style="
                   color: var(--success);
                   font-weight: 800;
                   font-size: 0.85rem;
-                ">AVAILABLE</span>
-            <div style="
+                "
+              >
+                AVAILABLE
+              </span>
+              <div
+                style="
                   width: 10px;
                   height: 10px;
                   background: var(--success);
                   border-radius: 50%;
                   box-shadow: 0 0 10px var(--success);
-                "></div>
-          </div>
-          <img id="nurse-avatar" src="https://ui-avatars.com/api/?name=Alice+Smith&background=3b82f6&color=fff"
-            alt="Profile" style="
+                "
+              ></div>
+            </div>
+            <img
+              id="nurse-avatar"
+              src="https://ui-avatars.com/api/?name=Alice+Smith&background=3b82f6&color=fff"
+              alt="Profile"
+              style="
                 width: 48px;
                 height: 48px;
                 border-radius: 12px;
                 border: 2px solid white;
                 box-shadow: var(--card-shadow);
-              " />
-        </div>
-      </header>
+              "
+            />
+          </div>
+        </header>
 
-  
-      <div class="stats-grid">
-        <div class="stat-card">
-          <span class="stat-label">Pending Requests</span>
-          <div class="stat-value" style="color: var(--warning)" id="stat-pending">--</div>
-          <p style="
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-label">Pending Requests</span>
+            <div
+              class="stat-value"
+              style="color: var(--warning)"
+              id="stat-pending"
+            >
+              --
+            </div>
+            <p
+              style="
                 font-size: 0.7rem;
                 color: var(--text-muted);
                 font-weight: 600;
-              ">
-            ACTION REQUIRED
-          </p>
-        </div>
-        <div class="stat-card">
-          <span class="stat-label">Tasks Completed</span>
-          <div class="stat-value" style="color: var(--success)" id="stat-completed">--</div>
-          <p style="
+              "
+            >
+              ACTION REQUIRED
+            </p>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Tasks Completed</span>
+            <div
+              class="stat-value"
+              style="color: var(--success)"
+              id="stat-completed"
+            >
+              --
+            </div>
+            <p
+              style="
                 font-size: 0.7rem;
                 color: var(--text-muted);
                 font-weight: 600;
-              ">
-            TOTAL
-          </p>
-        </div>
-        <div class="stat-card">
-          <span class="stat-label">Average Rating</span>
-          <div class="stat-value" style="color: var(--primary)" id="nurse-rating-value">
-            --
-            <small style="font-size: 1rem"><i class="fas fa-star"></i></small>
+              "
+            >
+              TOTAL
+            </p>
           </div>
-          <p style="font-size: 0.7rem; color: var(--primary); font-weight: 600">
-            EXCELLENT
-          </p>
-        </div>
-      </div>
-
-      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px">
-       
-        <div class="glass-card animate-slide" id="next-visit-card">
-          <h3 style="font-weight: 800; font-size: 1.25rem; margin-bottom: 25px">
-            Up Next: Home Visit
-          </h3>
-          <div id="next-visit-container">
-            <p style="color: var(--text-muted)">Loading next visit...</p>
+          <div class="stat-card">
+            <span class="stat-label">Average Rating</span>
+            <div
+              class="stat-value"
+              style="color: var(--primary)"
+              id="nurse-rating-value"
+            >
+              --
+              <small style="font-size: 1rem"><i class="fas fa-star"></i></small>
+            </div>
+            <p
+              style="font-size: 0.7rem; color: var(--primary); font-weight: 600"
+            >
+              EXCELLENT
+            </p>
           </div>
         </div>
-      </div>
-    </main>
-  </div>
 
-  <script src="../js/nurse.js"></script>
-  <script src="../js/main.js"></script>
-  <script>
-    const API_URL = "http://localhost:8000";
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px">
+          <div class="glass-card animate-slide" id="next-visit-card">
+            <h3
+              style="font-weight: 800; font-size: 1.25rem; margin-bottom: 25px"
+            >
+              Up Next: Home Visit
+            </h3>
+            <div id="next-visit-container">
+              <p style="color: var(--text-muted)">Loading next visit...</p>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
 
-    document.addEventListener("DOMContentLoaded", async () => {
-      const userStr = localStorage.getItem("user");
-      if (!userStr) return;
-      const user = JSON.parse(userStr);
-
-      document.querySelector(".page-title").innerText = `Welcome, ${user.full_name}`;
-      const avatarEl = document.getElementById("nurse-avatar");
-      if (avatarEl) {
-        const profileImage = user.profile_image
-          ? (user.profile_image.startsWith('http') ? user.profile_image : `${API_URL}/${user.profile_image.replace(/^\/+/, '')}`)
-          : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name)}&background=3b82f6&color=fff`;
-        avatarEl.src = profileImage;
-      }     // i don't understand 
-
-      try {
-        const userRes = await fetch(`${API_URL}/users/${user.id}?t=${new Date().getTime()}`);
-        if (userRes.ok) {
-          const userData = await userRes.json();
-        
-          const ratingEl = document.getElementById('nurse-rating-value');
-          if (ratingEl) {
-           
-            const ratingVal = userData.rating ? Number(userData.rating) : 0;
-            ratingEl.innerHTML = `${ratingVal.toFixed(1)} <small style="font-size: 1rem"><i class="fas fa-star"></i></small>`;
-
-            
-            const labelEl = ratingEl.nextElementSibling;
-            if (labelEl) {
-              let text = "POOR";
-              let color = "var(--danger)"; // Ensure this variable exists or use hardcoded red
-
-              if (ratingVal >= 4.5) {
-                text = "EXCELLENT";
-                color = "var(--success)"; // Green
-              } else if (ratingVal >= 3.5) {
-                text = "GOOD";
-                color = "var(--primary)"; // Blue
-              } else if (ratingVal >= 2.5) {
-                text = "AVERAGE";
-                color = "#f59e0b"; // Orange
-              }
-
-              labelEl.innerText = text;
-              labelEl.style.color = color;
-            }
-          }
-        }
-
-        // Fetch Appointments
-        const response = await fetch(`${API_URL}/appointments/nurse/${user.id}`);
-        if (!response.ok) {
-          const err = await response.json();
-          throw new Error(err.detail || "Server Error");
-        }
-        const appointments = await response.json();
-
-        // Calculate Stats
-        const pending = appointments.filter(a => a.status === 'PENDING').length;
-        const completed = appointments.filter(a => a.status === 'COMPLETED').length;
-
-        document.getElementById("stat-pending").innerText = pending;
-        document.getElementById("stat-completed").innerText = completed;
-
-        // Find Next Visit (First pending or confirmed appointment in the future)
-        // For simplicity, we'll take the first 'pending' or 'confirmed' appointment 
-        // assuming the backend sorts them or we sort them here.
-
-        // Sort by date/time
-        // Filter for Pending/Accepted AND Future appointments
-        const now = new Date();
-        const upcoming = appointments
-          .filter(a => ['PENDING', 'ACCEPTED'].includes(a.status))
-          .filter(a => new Date(a.appointment_date + 'T' + a.appointment_time) > now)
-          .sort((a, b) => new Date(a.appointment_date + ' ' + a.appointment_time) - new Date(b.appointment_date + ' ' + b.appointment_time));
-
-        const nextVisitContainer = document.getElementById("next-visit-container");
-
-        if (upcoming.length > 0) {
-          const next = upcoming[0];
-          nextVisitContainer.innerHTML = `
-                   <div style="display: flex; gap: 20px; align-items: center;">
-                      <div style="background: #eff6ff; padding: 15px; border-radius: 12px; text-align: center; min-width: 80px;">
-                          <div style="font-weight: 800; font-size: 1.2rem; color: var(--primary);">${new Date(next.appointment_date).getDate()}</div>
-                          <div style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">${new Date(next.appointment_date).toLocaleString('default', { month: 'short' })}</div>
-                      </div>
-                      <div>
-                          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-                              <img src="${next.patient_image ? (next.patient_image.startsWith('http') ? next.patient_image : `http://localhost:8000/${next.patient_image.replace(/^\/+/, '').startsWith('static/') ? '' : 'static/'}${next.patient_image.replace(/^\/+/, '')}`) : `https://ui-avatars.com/api/?name=${encodeURIComponent(next.patient_name)}&background=random`}" 
-                                   onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(next.patient_name)}&background=random'"
-                                   style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-                              <h4 style="font-weight: 700; margin: 0;">${next.patient_name}</h4>
-                          </div>
-                          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 8px;">
-                              <i class="far fa-clock"></i> ${next.appointment_time} • ${next.service_type || 'General Care'}
-                          </p>
-                          <span class="badge badge-${next.status === 'confirmed' ? 'success' : 'warning'}">${next.status.toUpperCase()}</span>
-                      </div>
-                      <div style="margin-left: auto; display: flex; gap: 10px;">
-                  ${(() => {
-              if (next.status === 'ON_THE_WAY') {
-                return `<button onclick="updateStatus(${next.id}, 'ARRIVED')" class="btn btn-primary btn-small">Arrived</button>`;
-              } else if (next.status === 'ARRIVED') {
-                return `<button onclick="updateStatus(${next.id}, 'COMPLETED')" class="btn btn-primary btn-small" style="background-color: #10b981; border-color: #10b981;">Complete</button>`;
-              } else {
-                return `<button onclick="updateStatus(${next.id}, 'ON_THE_WAY')" class="btn btn-outline btn-small">On Way</button>`;
-              }
-            })()}
-                          <a href="nurse-portal.html" class="btn btn-primary btn-small">View All</a>
-                      </div>
-                   </div>
-                `;
-        } else {
-          nextVisitContainer.innerHTML = `<p style="text-align: center; padding: 20px;">No upcoming visits scheduled.</p>`;
-        }
-
-      } catch (e) {
-        console.error(e);
-        document.getElementById("next-visit-container").innerHTML = `<p style="color: red; text-align: center; padding: 20px;">Error: ${e.message}</p>`;
-        document.getElementById("stat-pending").innerText = "Err";
-        document.getElementById("stat-completed").innerText = "Err";
-      }
-    });
-
-    // Session Polling
-    setInterval(() => {
-      const storedUser = localStorage.getItem("user");
-      if (!storedUser) { window.location.href = 'login.html'; return; }
-      const parsed = JSON.parse(storedUser);
-      const currentUser = JSON.parse(localStorage.getItem("user") || '{}'); // Re-read or keep ref? 
-      // Better to use the initial user ID from closure if we had it, but expecting DOMContentLoaded scope
-      // Let's use the ID from the loaded page context if possible, but simpler:
-      // If role changed, reload.
-      if (parsed.role !== 'nurse') {
-        window.location.reload();
-      }
-    }, 5000);
-
-    async function updateStatus(id, newStatus) {
-      if (!confirm(`Update status to ${newStatus}?`)) return;
-      try {
-        const response = await fetch(`${API_URL}/appointments/${id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: newStatus }),
-        });
-        if (response.ok) {
-          showToast(`Status updated to ${newStatus}`);
-          // Refresh page to see changes (or re-fetch)
-          setTimeout(() => location.reload(), 1000);
-        } else {
-          showToast("Failed to update status", "error");
-        }
-      } catch (e) {
-        showToast("Connection error", "error");
-      }
-    }
-  </script>
-
+    <script src="../js/nurse.js"></script>
+    <script src="../js/main.js"></script>
+    <script src="../js/nursedashbord.js"></script>
+  </body>
 </html>

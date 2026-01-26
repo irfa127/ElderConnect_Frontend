@@ -1,0 +1,141 @@
+const API_URL = "http://localhost:8000";
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const userStr = localStorage.getItem("user");
+  if (!userStr) {
+    window.location.href = "login.html";
+    return;
+  }
+  const user = JSON.parse(userStr);
+  if (user.role !== "oah_manager") {
+    alert("Access Denied");
+    window.location.href = "index.html";
+    return;
+  }
+
+  const headerTitle = document.querySelector("header h1");
+  if (headerTitle) headerTitle.innerText = `Welcome, ${user.full_name}`;
+
+  try {
+    const commResponse = await fetch(
+      `${API_URL}/communities/manager/${user.id}`,
+    );
+    if (!commResponse.ok) throw new Error("Failed to fetch community");
+    const communities = await commResponse.json();
+
+    if (!communities || communities.length === 0) {
+      document.getElementById("recentInquiriesContainer").innerHTML =
+        `<p style="text-align:center;">You haven't set up a community yet. Go to <a href="oah-portal.html">Manage Home</a>.</p>`;
+      return;
+    }
+
+    const community = communities[0];
+    if (headerTitle) headerTitle.innerText = `${community.name} Dashboard`;
+
+    const priceStr = community.pricing || "0";
+    const price = parseInt(priceStr.replace(/[^0-9]/g, "")) || 0;
+
+    const inqResponse = await fetch(
+      `${API_URL}/inquiries/community/${community.id}`,
+    );
+    const inquiries = await inqResponse.json();
+
+    const pendingCount = inquiries.filter((i) => i.status === "pending").length;
+    const acceptedCount = inquiries.filter(
+      (i) => i.status === "accepted",
+    ).length;
+
+    document.getElementById("statResidents").innerText = acceptedCount;
+    document.getElementById("statPending").innerText = pendingCount;
+
+    const totalRevenue = acceptedCount * price;
+    const revenueEl = document.getElementById("statRevenue");
+
+    if (totalRevenue >= 100000) {
+      revenueEl.innerText = `₹${(totalRevenue / 100000).toFixed(2)}L`;
+    } else {
+      revenueEl.innerText = `₹${totalRevenue.toLocaleString("en-IN")}`;
+    }
+
+    const container = document.getElementById("recentInquiriesContainer");
+    container.innerHTML = "";
+
+    if (inquiries.length === 0) {
+      container.innerHTML = `<p style="text-align: center;">No inquiries found.</p>`;
+    } else {
+      const recentInqs = inquiries.reverse().slice(0, 5);
+
+      for (const inq of recentInqs) {
+        const card = document.createElement("div");
+        card.className = "inquiry-card";
+        card.innerHTML = `
+              <div class="resident-info">
+                <h4>${inq.resident_name || inq.applicant_name} <span style="font-size:0.8em; font-weight:normal; color:#666;">(Age: ${inq.resident_age || "N/A"})</span></h4>
+                <p>
+                  <i class="fas fa-user-tag"></i> Status: <strong style="color: ${inq.status === "pending" ? "var(--warning)" : "#10b981"}">${inq.status.toUpperCase()}</strong>
+                  • <i class="fas fa-calendar-alt"></i> Move-in: ${inq.move_in_date || "TBD"}
+                </p>
+                <div style="margin-top: 8px; font-size: 0.8rem; color: #64748b">
+                   <i class="fas fa-notes-medical"></i> Needs: ${inq.medical_needs || "None listed"}
+                </div>
+              </div>
+              <div class="inquiry-actions">
+                <button class="btn btn-outline btn-small" onclick="viewInquiryDetails(${inq.id})">
+                  View Details
+                </button>
+                ${
+                  inq.status === "pending"
+                    ? `<button class="btn btn-primary btn-small" style="background: #059669" onclick="updateInquiryStatus(${inq.id}, 'accepted')">
+                    Accept
+                   </button>`
+                    : `<button class="btn btn-outline btn-small" disabled>Accepted</button>`
+                }
+              </div>
+            `;
+        container.appendChild(card);
+      }
+    }
+
+    window.currentInquiries = inquiries;
+  } catch (e) {
+    console.error("Dashboard error:", e);
+    document.getElementById("recentInquiriesContainer").innerHTML =
+      "<p style='color:red; text-align:center;'>Error loading dashboard data. Please check backend.</p>";
+  }
+});
+
+async function updateInquiryStatus(id, newStatus) {
+  if (!confirm(`Mark this inquiry as ${newStatus}?`)) return;
+  try {
+    const response = await fetch(`${API_URL}/inquiries/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: newStatus }),
+    });
+
+    if (response.ok) {
+      showToast(`Inquiry marked as ${newStatus}`, "success");
+      setTimeout(() => location.reload(), 1000);
+    } else {
+      showToast("Failed to update status", "error");
+    }
+  } catch (e) {
+    console.error(e);
+    showToast("Error updating status: " + e.message, "error");
+  }
+}
+
+function viewInquiryDetails(id) {
+  const inq = window.currentInquiries.find((i) => i.id === id);
+  if (!inq) return;
+
+  alert(`
+         Inquiry Details:
+         Resident: ${inq.resident_name}
+         Age: ${inq.resident_age}
+         Applicant: ${inq.applicant_name} (${inq.relation})
+         Contact: ${inq.applicant_phone} | ${inq.applicant_email}
+         Needs: ${inq.medical_needs}
+         Requests: ${inq.special_requests}
+       `);
+}
