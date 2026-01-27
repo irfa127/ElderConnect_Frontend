@@ -20,7 +20,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const commResponse = await fetch(
       `${API_URL}/communities/manager/${user.id}`,
     );
-    if (!commResponse.ok) throw new Error("Failed to fetch community");
+    if (!commResponse.ok) {
+      throw new Error(`Failed to fetch community: ${commResponse.status} ${commResponse.statusText}`);
+    }
     const communities = await commResponse.json();
 
     if (!communities || communities.length === 0) {
@@ -38,6 +40,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const inqResponse = await fetch(
       `${API_URL}/inquiries/community/${community.id}`,
     );
+    if (!inqResponse.ok) {
+      throw new Error(`Failed to fetch inquiries: ${inqResponse.status}`);
+    }
     const inquiries = await inqResponse.json();
 
     const pendingCount = inquiries.filter((i) => i.status === "pending").length;
@@ -99,8 +104,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.currentInquiries = inquiries;
   } catch (e) {
     console.error("Dashboard error:", e);
-    document.getElementById("recentInquiriesContainer").innerHTML =
-      "<p style='color:red; text-align:center;'>Error loading dashboard data. Please check backend.</p>";
+    const errorMsg = e.message || "Unknown error";
+    document.getElementById("recentInquiriesContainer").innerHTML = `
+      <div style="background: #fee2e2; border: 1px solid #fca5a5; border-radius: 12px; padding: 20px; color: #991b1b; text-align: center;">
+        <p style="font-weight: 700; margin-bottom: 10px;">⚠️ Error Loading Dashboard</p>
+        <p style="font-size: 0.9rem; margin-bottom: 10px;">${errorMsg}</p>
+        <p style="font-size: 0.85rem; color: #7f1d1d; margin-bottom: 15px;">Please ensure the backend server is running at ${API_URL}</p>
+        <button onclick="location.reload()" style="background: #dc2626; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">
+          Retry
+        </button>
+      </div>
+    `;
   }
 });
 

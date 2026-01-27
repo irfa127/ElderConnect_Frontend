@@ -10,12 +10,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const avatarEl = document.getElementById("nurse-avatar");
   if (avatarEl) {
-    const profileImage = user.profile_image
-      ? user.profile_image.startsWith("http")
-        ? user.profile_image
-        : `${API_URL}/${user.profile_image.replace(/^\/+/, "")}`
-      : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name)}&background=3b82f6&color=fff`;
-    avatarEl.src = profileImage;
+    avatarEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name)}&background=3b82f6&color=fff`;
   }
 
   try {
@@ -91,8 +86,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                       </div>
                       <div>
                           <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-                              <img src="${next.patient_image ? (next.patient_image.startsWith("http") ? next.patient_image : `http://localhost:8000/${next.patient_image.replace(/^\/+/, "").startsWith("static/") ? "" : "static/"}${next.patient_image.replace(/^\/+/, "")}`) : `https://ui-avatars.com/api/?name=${encodeURIComponent(next.patient_name)}&background=random`}" 
-                                   onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(next.patient_name)}&background=random'"
+                              <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(next.patient_name)}&background=random"
                                    style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                               <h4 style="font-weight: 700; margin: 0;">${next.patient_name}</h4>
                           </div>

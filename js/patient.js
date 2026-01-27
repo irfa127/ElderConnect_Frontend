@@ -1,5 +1,6 @@
 const API_URL = "http://localhost:8000";
       let isRequestInProgress = false; // every 5 second dashboard refresh aagum
+      let currentUser = null; // Global variable to store logged-in user
 
       document.addEventListener("DOMContentLoaded", () => {
         const userStr = localStorage.getItem("user");
@@ -7,9 +8,9 @@ const API_URL = "http://localhost:8000";
           window.location.href = "login.html";
           return;
         }
-        const user = JSON.parse(userStr);
+        currentUser = JSON.parse(userStr);
 
-        if (user.role !== "patient") {
+        if (currentUser.role !== "patient") {
           document.body.innerHTML = `
             <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; background:#f8fafc; font-family:sans-serif;">
                 <div style="background:white; padding:40px; border-radius:20px; box-shadow:0 10px 25px -5px rgba(0,0,0,0.1); text-align:center; max-width:400px;">
@@ -18,7 +19,7 @@ const API_URL = "http://localhost:8000";
                     </div>
                     <h2 style="color:#1e293b; margin-bottom:10px;">Session Changed</h2>
                     <p style="color:#64748b; line-height:1.6; margin-bottom:25px;">
-                        A different user (${user.role.replace("_", " ")}) is currently logged in. Please log in again to access your dashboard.
+                        A different user (${currentUser.role.replace("_", " ")}) is currently logged in. Please log in again to access your dashboard.
                     </p>
                     <button onclick="localStorage.clear(); window.location.href='login.html'" 
                         style="width:100%; padding:14px; background:#3b82f6; color:white; border:none; border-radius:12px; cursor:pointer; font-weight:700; font-size:1rem;">
@@ -31,9 +32,9 @@ const API_URL = "http://localhost:8000";
         }
 
         document.getElementById("user-greeting").innerText =
-          `Hello, ${user.full_name} 👋`;
+          `Hello, ${currentUser.full_name} 👋`;
 
-        refreshDashboard(user.id);
+        refreshDashboard(currentUser.id);
 
         setInterval(() => {
           const storedUser = localStorage.getItem("user");
@@ -42,12 +43,12 @@ const API_URL = "http://localhost:8000";
             return;
           }
           const parsed = JSON.parse(storedUser);
-          if (parsed.id !== user.id) {
+          if (parsed.id !== currentUser.id) {
             console.warn("Session changed, reloading...");
             window.location.reload();
             return;
           }
-          refreshDashboard(user.id);
+          refreshDashboard(currentUser.id);
         }, 5000);
       });
 
@@ -180,49 +181,67 @@ const API_URL = "http://localhost:8000";
             const inquiries = await inqResponse.json();
             const acceptedInq = inquiries.find((i) => i.status === "accepted");
 
-            const noticeContainer =
-              document.getElementById("oahNoticeContainer");
-
             if (acceptedInq) {
               const comm = acceptedInq.community || {};
-              const applicantName = acceptedInq.applicant_name || currentUser?.name || "Applicant";
-              const applicantEmail = acceptedInq.applicant_email || currentUser?.email || "";
+              const applicantName = currentUser.full_name || "Applicant";
+              const applicantEmail = currentUser.email || "";
             
-              if (!noticeContainer) {
-                const section = document.createElement("div");
-                section.id = "oahNoticeContainer";
-                section.className = "animate-slide";
-                section.style.marginTop = "30px";
-                section.innerHTML = `
-                      <div class="glass-card" style="background: #ecfdf5; border-color: #a7f3d0; display: flex; gap: 20px; align-items: center;">
-                         <img src="${comm.image_url || "https://via.placeholder.com/100"}" 
-                              style="width: 80px; height: 80px; border-radius: 12px; object-fit: cover;" />
-                         <div style="flex: 1;">
-                            <h3 style="color: #065f46; font-weight: 800; margin-bottom: 5px;">
-                               ✅ Your Old Age Home booking was successful!
-                            </h3>
-                            <p style="color: #047857; font-size: 0.95rem;">
-                               <strong>${comm.name || "Community"}</strong> has accepted your request. They will contact you shortly.
-                            </p>
-                            <p style="margin-top: 5px; color: #047857; font-size: 0.9rem;">
-                               <strong>Applicant:</strong> ${applicantName}
-                            </p>
-                            <p style="margin-top: 3px; color: #047857; font-size: 0.9rem;">
-                               <i class="fas fa-envelope"></i> ${applicantEmail}
-                            </p>
-                            <p style="margin-top: 3px; color: #047857; font-size: 0.9rem;">
-                               <i class="fas fa-phone-alt"></i> ${comm.phone || "Contact Admin"}
-                            </p>
-                         </div>
-                      </div>
-                   `;
-                // Insert after tracking container or before stats
-                const tracker = document.getElementById(
-                  "liveTrackingContainer",
-                );
-                if (tracker && tracker.parentNode) {
-                  tracker.parentNode.insertBefore(section, tracker.nextSibling);
+              // Remove existing notice if present
+              const existingNotice = document.getElementById("oahNoticeContainer");
+              if (existingNotice) {
+                existingNotice.remove();
+              }
+              
+              const section = document.createElement("div");
+              section.id = "oahNoticeContainer";
+              section.className = "animate-slide";
+              section.style.marginTop = "30px";
+              section.innerHTML = `
+                    <div class="glass-card" style="background: #ecfdf5; border-color: #a7f3d0; display: flex; gap: 20px; align-items: center;">
+                       <img src="${comm.image_url || "https://via.placeholder.com/100"}" 
+                            style="width: 80px; height: 80px; border-radius: 12px; object-fit: cover;" />
+                       <div style="flex: 1;">
+                          <h3 style="color: #065f46; font-weight: 800; margin-bottom: 5px;">
+                             ✅ Your Old Age Home booking was successful!
+                          </h3>
+                          <p style="color: #047857; font-size: 0.95rem;">
+                             <strong>${comm.name || "Community"}</strong> has accepted your request. They will contact you shortly.
+                          </p>
+                          <p style="margin-top: 5px; color: #047857; font-size: 0.9rem;">
+                             <strong>Applicant:</strong> ${applicantName}
+                          </p>
+                          <p style="margin-top: 3px; color: #047857; font-size: 0.9rem;">
+                             <i class="fas fa-envelope"></i> ${applicantEmail}
+                          </p>
+                          <p style="margin-top: 3px; color: #047857; font-size: 0.9rem;">
+                             <i class="fas fa-phone-alt"></i> ${comm.phone || "Contact Admin"}
+                          </p>
+                       </div>
+                    </div>
+                 `;
+              
+              // Try multiple insertion points
+              let inserted = false;
+              
+              // Try inserting after liveTrackingContainer
+              const tracker = document.getElementById("liveTrackingContainer");
+              if (tracker && tracker.parentNode) {
+                tracker.parentNode.insertBefore(section, tracker.nextSibling);
+                inserted = true;
+              }
+              
+              // If that fails, try inserting at the beginning of main content
+              if (!inserted) {
+                const mainContent = document.querySelector(".main-content");
+                if (mainContent) {
+                  mainContent.insertBefore(section, mainContent.firstChild);
+                  inserted = true;
                 }
+              }
+              
+              // If still not inserted, append to body
+              if (!inserted) {
+                document.body.appendChild(section);
               }
             }
           }

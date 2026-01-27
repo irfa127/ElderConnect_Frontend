@@ -141,11 +141,7 @@
                 const card = document.createElement("div");
                 card.className = "apt-card-attractive animate-fade";
 
-                const imageUrl = apt.nurse_image
-                  ? apt.nurse_image.startsWith("http")
-                    ? apt.nurse_image
-                    : `http://localhost:8000/${apt.nurse_image.replace(/^\/+/, "").startsWith("static/") ? "" : "static/"}${apt.nurse_image.replace(/^\/+/, "")}`
-                  : `https://ui-avatars.com/api/?name=${encodeURIComponent(apt.nurse_name)}&background=random`;
+                const imageUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(apt.nurse_name)}&background=random`;
 
                 card.innerHTML = `
                           <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px;">
@@ -291,6 +287,7 @@
             <label>Preferred Date</label>
             <input
               type="date"
+              id="bookingDate"
               class="btn-outline"
               style="width: 100%; padding: 12px; border-radius: 10px"
             />
@@ -621,6 +618,19 @@
       function openModal(id) {
         document.getElementById(id).style.display = "flex";
       }
+
+      // now booking date 
+      const dateInput = document.getElementById("bookingDate");
+
+      const today = new Date();
+
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, "0");
+      const day = String(today.getDate()).padStart(2, "0");
+
+      const minDate = `${year}-${month}-${day}`;
+
+      dateInput.min = minDate;
     </script>
   </body>
 </html>
