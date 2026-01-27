@@ -4,12 +4,21 @@ document.addEventListener("DOMContentLoaded", async () => {
       const historyBody = document.getElementById("vitalsHistoryBody");
 
       const userStr = localStorage.getItem("user");
-      if (!userStr) return;
+      console.log("User from localStorage:", userStr);
+
+      if (!userStr) {
+        console.error("No user found in localStorage");
+        grid.innerHTML = "<p>Please log in first.</p>";
+        return;
+      }
       const user = JSON.parse(userStr);
+      console.log("Parsed user:", user);
 
       try {
         const response = await fetch(`http://localhost:8000/vitals/patient/${user.id}`);
+        console.log("Response status:", response.status);
         const vitals = await response.json();
+        console.log("Vitals data:", vitals);
 
         grid.innerHTML = "";
         historyBody.innerHTML = "";
@@ -90,7 +99,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
       } catch (e) {
-        console.error(e);
-        grid.innerHTML = "<p>Error loading vitals.</p>";
+        console.error("Error fetching vitals:", e);
+        grid.innerHTML = "<p>Error loading vitals: " + e.message + "</p>";
       }
     });

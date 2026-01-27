@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-
+// Login irukka nu check pannradhu
 function checkAuth() {
   const protectedPages = ["dashboard", "profile", "appointments", "vitals", "senior-living"];
   const currentPath = window.location.pathname;
@@ -62,7 +62,7 @@ function checkAuth() {
   }
 }
 
-// Modal Logic
+// Modal Logic Popup open pannradhu
 function openModal(id) {
   const modal = document.getElementById(id);
   if (modal) {
@@ -101,7 +101,7 @@ function showToast(msg, type = "success") {
   setTimeout(() => toast.remove(), 3000);
 }
 
-// Refresh User Data (Sync with Backend)
+// Refresh User Data (Sync with Backend) Profile update pannina udane reflect aagum
 async function refreshUserData(userId) {
   if (!userId) {
     const user = JSON.parse(localStorage.getItem("user"));

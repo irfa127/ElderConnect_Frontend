@@ -67,11 +67,7 @@ async function fetchAppointments() {
               </div>
             `;
 
-      const patientImg = apt.patient_image
-        ? apt.patient_image.startsWith("http")
-          ? apt.patient_image
-          : `http://localhost:8000/${apt.patient_image.replace(/^\/+/, "").startsWith("static/") ? "" : "static/"}${apt.patient_image.replace(/^\/+/, "")}`
-        : `https://ui-avatars.com/api/?name=${encodeURIComponent(apt.patient_name)}&background=random`;
+      const patientImg = `https://ui-avatars.com/api/?name=${encodeURIComponent(apt.patient_name)}&background=random`;
 
       const card = document.createElement("div");
       card.className = "apt-info-card animate-fade";
@@ -158,10 +154,7 @@ async function finalizeUpload() {
   const id = document.getElementById("targetAppointmentId").value;
   const patientId = document.getElementById("targetPatientId").value;
   const notes = document.getElementById("uploadNotes").value;
-  const fileInput = document.getElementById("fileInput");
-  const file = fileInput.files[0];
 
- 
   const bp = document.getElementById("vitalBP").value;
   const hr = document.getElementById("vitalHR").value;
   const sugar = document.getElementById("vitalSugar").value;
@@ -192,25 +185,6 @@ async function finalizeUpload() {
     }
 
     let reportNote = notes;
-
-
-    if (file) {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const uploadRes = await fetch(`${API_URL}/uploads/`, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (uploadRes.ok) {
-        const data = await uploadRes.json();
-        reportNote += `\n\n[View Medical Report](${API_URL}${data.url})`;
-      } else {
-        showToast("File upload failed", "error");
-        return;
-      }
-    }
 
   
     const response = await fetch(`${API_URL}/appointments/${id}`, {

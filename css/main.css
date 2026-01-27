@@ -499,3 +499,114 @@ input:focus {
 .back-btn:hover {
   color: #3b82f6;
 }
+/* Vitals Grid and Cards */
+.vitals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.vital-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+}
+
+.vital-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.vital-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.vital-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+}
+
+.trend-badge {
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vital-value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.vital-unit {
+  font-size: 0.875rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.vital-type {
+  color: #64748b;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.vital-date {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: right;
+}
+
+/* Vitals History Table */
+.vitals-history {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.vitals-history table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.vitals-history thead {
+  background: #f8fafc;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.vitals-history th {
+  padding: 16px 15px;
+  text-align: left;
+  font-weight: 700;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.vitals-history tbody tr:hover {
+  background: #f8fafc;
+}
+
+.vitals-history td {
+  padding: 16px 15px;
+  border-bottom: 1px solid #e2e8f0;
+}

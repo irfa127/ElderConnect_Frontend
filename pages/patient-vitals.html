@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Health Vitals | ElderConnect Patient</title>
+    <link rel="stylesheet" href="../css/main.css" />
     <link rel="stylesheet" href="../css/style.css" />
     <link rel="stylesheet" href="../css/patient.css" />
     <link
@@ -56,19 +57,18 @@
       <main class="main-content">
         <header class="section-head">
           <h1 class="page-title">Health Vitals Dashboard</h1>
-          <button class="btn btn-primary">
+          <!-- <button class="btn btn-primary">
             <i class="fas fa-download"></i> Export Data
-          </button>
+          </button> -->
         </header>
 
         <div class="vitals-grid" id="vitalsGrid">
-          <!-- Vitals cards will be injected here -->
+          
           <p style="text-align: center; width: 100%; grid-column: span 4">
             Loading vitals...
           </p>
         </div>
 
-        <!-- AI Insight -->
         <div
           class="glass-card animate-slide"
           style="
@@ -107,7 +107,7 @@
           </div>
         </div>
 
-        <!-- Historical Data -->
+       
         <div
           class="glass-card animate-slide"
           style="margin-top: 30px; animation-delay: 0.2s"
@@ -171,7 +171,7 @@
               </tr>
             </thead>
             <tbody id="vitalsHistoryBody">
-              <!-- Dynamic Rows -->
+        
             </tbody>
           </table>
         </div>
@@ -179,5 +179,6 @@
     </div>
     <script src="../js/main.js"></script>
     <script src="../js/vitals.js"></script>
+    
   </body>
 </html>

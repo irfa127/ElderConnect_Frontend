@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         : `${API_URL}/${user.profile_image.replace(/^\/+/, "")}`
       : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name)}&background=3b82f6&color=fff`;
     avatarEl.src = profileImage;
-  } // i don't understand
+  }
 
   try {
     const userRes = await fetch(
