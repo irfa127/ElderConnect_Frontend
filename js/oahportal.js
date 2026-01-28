@@ -1,4 +1,3 @@
-const API_URL = "http://localhost:8000";
 let currentCommunity = null;
 
 document.addEventListener("DOMContentLoaded", async () => {

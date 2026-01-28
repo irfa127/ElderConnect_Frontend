@@ -1,69 +1,69 @@
 
 document.addEventListener("DOMContentLoaded", async () => {
-      const grid = document.getElementById("vitalsGrid");
-      const historyBody = document.getElementById("vitalsHistoryBody");
+  const grid = document.getElementById("vitalsGrid");
+  const historyBody = document.getElementById("vitalsHistoryBody");
 
-      const userStr = localStorage.getItem("user");
-      console.log("User from localStorage:", userStr);
+  const userStr = localStorage.getItem("user");
+  console.log("User from localStorage:", userStr);
 
-      if (!userStr) {
-        console.error("No user found in localStorage");
-        grid.innerHTML = "<p>Please log in first.</p>";
-        return;
+  if (!userStr) {
+    console.error("No user found in localStorage");
+    grid.innerHTML = "<p>Please log in first.</p>";
+    return;
+  }
+  const user = JSON.parse(userStr);
+  console.log("Parsed user:", user);
+
+  try {
+    const response = await fetch(`${API_URL}/vitals/patient/${user.id}`);
+    console.log("Response status:", response.status);
+    const vitals = await response.json();
+    console.log("Vitals data:", vitals);
+
+    grid.innerHTML = "";
+    historyBody.innerHTML = "";
+
+    if (vitals.length === 0) {
+      grid.innerHTML = "<p>No vitals recorded yet.</p>";
+      document.getElementById("aiAnalysisText").innerText = "No data available for analysis.";
+      return;
+    }
+
+    document.getElementById("aiAnalysisText").innerText = "Based on your recent uploads, monitoring continues correctly.";
+
+
+    vitals.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+
+    const measurements = [];
+    vitals.forEach(record => {
+      const date = record.created_at;
+      if (record.blood_pressure) {
+        measurements.push({ vital_type: "Blood Pressure", value: record.blood_pressure, unit: "mmHg", date: date, color: "#3b82f6", icon: "fa-heartbeat", bg: "#eff6ff" });
       }
-      const user = JSON.parse(userStr);
-      console.log("Parsed user:", user);
+      if (record.heart_rate) {
+        measurements.push({ vital_type: "Heart Rate", value: record.heart_rate, unit: "BPM", date: date, color: "#ef4444", icon: "fa-running", bg: "#fef2f2" });
+      }
+      if (record.sugar_level) {
+        measurements.push({ vital_type: "Blood Sugar", value: record.sugar_level, unit: "mg/dL", date: date, color: "#10b981", icon: "fa-tint", bg: "#f0fdf4" });
+      }
+      if (record.temperature) {
+        measurements.push({ vital_type: "Temperature", value: record.temperature, unit: "°F", date: date, color: "#f97316", icon: "fa-thermometer-half", bg: "#fff7ed" });
+      }
+    });
 
-      try {
-        const response = await fetch(`http://localhost:8000/vitals/patient/${user.id}`);
-        console.log("Response status:", response.status);
-        const vitals = await response.json();
-        console.log("Vitals data:", vitals);
 
-        grid.innerHTML = "";
-        historyBody.innerHTML = "";
+    const latestByType = {};
+    measurements.forEach(m => {
+      if (!latestByType[m.vital_type]) {
+        latestByType[m.vital_type] = m;
+      }
+    });
 
-        if (vitals.length === 0) {
-          grid.innerHTML = "<p>No vitals recorded yet.</p>";
-          document.getElementById("aiAnalysisText").innerText = "No data available for analysis.";
-          return;
-        }
 
-        document.getElementById("aiAnalysisText").innerText = "Based on your recent uploads, monitoring continues correctly.";
-
-       
-        vitals.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-        
-        const measurements = [];
-        vitals.forEach(record => {
-          const date = record.created_at;
-          if (record.blood_pressure) {
-            measurements.push({ vital_type: "Blood Pressure", value: record.blood_pressure, unit: "mmHg", date: date, color: "#3b82f6", icon: "fa-heartbeat", bg: "#eff6ff" });
-          }
-          if (record.heart_rate) {
-            measurements.push({ vital_type: "Heart Rate", value: record.heart_rate, unit: "BPM", date: date, color: "#ef4444", icon: "fa-running", bg: "#fef2f2" });
-          }
-          if (record.sugar_level) {
-            measurements.push({ vital_type: "Blood Sugar", value: record.sugar_level, unit: "mg/dL", date: date, color: "#10b981", icon: "fa-tint", bg: "#f0fdf4" });
-          }
-          if (record.temperature) {
-            measurements.push({ vital_type: "Temperature", value: record.temperature, unit: "°F", date: date, color: "#f97316", icon: "fa-thermometer-half", bg: "#fff7ed" });
-          }
-        });
-
-        
-        const latestByType = {};
-        measurements.forEach(m => {
-          if (!latestByType[m.vital_type]) {
-            latestByType[m.vital_type] = m;
-          }
-        });
-
-        
-        for (let type in latestByType) {
-          const v = latestByType[type];
-          const card = `
+    for (let type in latestByType) {
+      const v = latestByType[type];
+      const card = `
               <div class="vital-card">
                 <div class="vital-header">
                   <div class="vital-icon" style="background: ${v.bg}; color: ${v.color}">
@@ -80,13 +80,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                 </div>
               </div>
             `;
-          grid.insertAdjacentHTML('beforeend', card);
-        }
+      grid.insertAdjacentHTML('beforeend', card);
+    }
 
-      
-        measurements.slice(0, 15).forEach(m => {
-          const dateObj = new Date(m.date);
-          const row = `
+
+    measurements.slice(0, 15).forEach(m => {
+      const dateObj = new Date(m.date);
+      const row = `
                 <tr style="border-bottom: 1px solid #f1f5f9">
                     <td style="padding: 20px 15px; font-weight: 600">${dateObj.toLocaleDateString()}</td>
                     <td style="padding: 20px 15px; color: #64748b">${dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
@@ -95,11 +95,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <td style="padding: 20px 15px">${m.unit}</td>
                 </tr>
             `;
-          historyBody.insertAdjacentHTML('beforeend', row);
-        });
-
-      } catch (e) {
-        console.error("Error fetching vitals:", e);
-        grid.innerHTML = "<p>Error loading vitals: " + e.message + "</p>";
-      }
+      historyBody.insertAdjacentHTML('beforeend', row);
     });
+
+  } catch (e) {
+    console.error("Error fetching vitals:", e);
+    grid.innerHTML = "<p>Error loading vitals: " + e.message + "</p>";
+  }
+});

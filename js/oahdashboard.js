@@ -1,4 +1,3 @@
-const API_URL = "http://localhost:8000";
 
 document.addEventListener("DOMContentLoaded", async () => {
   const userStr = localStorage.getItem("user");
@@ -88,13 +87,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <button class="btn btn-outline btn-small" onclick="viewInquiryDetails(${inq.id})">
                   View Details
                 </button>
-                ${
-                  inq.status === "pending"
-                    ? `<button class="btn btn-primary btn-small" style="background: #059669" onclick="updateInquiryStatus(${inq.id}, 'accepted')">
+                ${inq.status === "pending"
+            ? `<button class="btn btn-primary btn-small" style="background: #059669" onclick="updateInquiryStatus(${inq.id}, 'accepted')">
                     Accept
                    </button>`
-                    : `<button class="btn btn-outline btn-small" disabled>Accepted</button>`
-                }
+            : `<button class="btn btn-outline btn-small" disabled>Accepted</button>`
+          }
               </div>
             `;
         container.appendChild(card);

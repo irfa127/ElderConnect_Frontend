@@ -1,4 +1,3 @@
-const API_URL = "http://localhost:8000";
 let currentUser = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -78,7 +77,7 @@ async function updateProfile() {
 
     if (response.ok) {
       showToast("Profile Updated Successfully!");
-      setAvatar(newName); 
+      setAvatar(newName);
       await loadProfile();
     } else {
       showToast("Failed to update profile", "error");

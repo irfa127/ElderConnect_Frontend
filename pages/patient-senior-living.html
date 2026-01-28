@@ -1,87 +1,70 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Senior Living Communities | ElderConnect</title>
-    <link rel="stylesheet" href="../css/style.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-  </head>
 
-  <body>
-    <div class="app-container">
-      <!-- Sidebar -->
-      <div class="sidebar">
-        <a href="index.html" class="nav-brand">
-          <i class="fas fa-hand-holding-medical"></i> ElderConnect
-        </a>
-        <ul class="nav-menu">
-          <li class="nav-item">
-            <a href="patient-dashboard.html" class="nav-link"
-              ><i class="fas fa-home"></i> Home</a
-            >
-          </li>
-          <li class="nav-item">
-            <a href="patient-appointments.html" class="nav-link"
-              ><i class="fas fa-calendar-check"></i> Appointments</a
-            >
-          </li>
-          <li class="nav-item">
-            <a href="patient-senior-living.html" class="nav-link active"
-              ><i class="fas fa-hotel"></i> Senior Living</a
-            >
-          </li>
-          <li class="nav-item">
-            <a href="patient-vitals.html" class="nav-link"
-              ><i class="fas fa-chart-line"></i> Health Vitals</a
-            >
-          </li>
-          <li class="nav-item">
-            <a href="patient-profile.html" class="nav-link"
-              ><i class="fas fa-user-circle"></i> My Profile</a
-            >
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link logout-link"
-              ><i class="fas fa-sign-out-alt"></i> Logout</a
-            >
-          </li>
-        </ul>
-      </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Senior Living Communities | ElderConnect</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
 
-      <!-- Main Content -->
-      <main class="main-content">
-        <header
-          class="section-head"
-          style="flex-direction: column; text-align: center; gap: 10px"
-        >
-          <h1 class="page-title" style="font-size: 2.2rem">
-            Find Your Perfect Senior Living Community
-          </h1>
-          <p
-            style="
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <a href="index.html" class="nav-brand">
+        <i class="fas fa-hand-holding-medical"></i> ElderConnect
+      </a>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a href="patient-dashboard.html" class="nav-link"><i class="fas fa-home"></i> Home</a>
+        </li>
+        <li class="nav-item">
+          <a href="patient-appointments.html" class="nav-link"><i class="fas fa-calendar-check"></i> Appointments</a>
+        </li>
+        <li class="nav-item">
+          <a href="patient-senior-living.html" class="nav-link active"><i class="fas fa-hotel"></i> Senior Living</a>
+        </li>
+        <li class="nav-item">
+          <a href="patient-vitals.html" class="nav-link"><i class="fas fa-chart-line"></i> Health Vitals</a>
+        </li>
+        <li class="nav-item">
+          <a href="patient-profile.html" class="nav-link"><i class="fas fa-user-circle"></i> My Profile</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="section-head" style="flex-direction: column; text-align: center; gap: 10px">
+        <h1 class="page-title" style="font-size: 2.2rem">
+          Find Your Perfect Senior Living Community
+        </h1>
+        <p style="
               color: var(--text-muted);
               font-size: 1.1rem;
               max-width: 600px;
-            "
-          >
-            Comfortable, caring environments where elders thrive with dignity
-            and joy.
-          </p>
-        </header>
+            ">
+          Comfortable, caring environments where elders thrive with dignity
+          and joy.
+        </p>
+      </header>
 
-        <div class="community-grid animate-slide" id="communitiesContainer">
-          <p style="text-align: center; width: 100%; color: var(--text-muted)">
-            Loading communities...
-          </p>
-        </div>
-      </main>
-    </div>
+      <div class="community-grid animate-slide" id="communitiesContainer">
+        <p style="text-align: center; width: 100%; color: var(--text-muted)">
+          Loading communities...
+        </p>
+      </div>
+    </main>
+  </div>
 
-    <script src="../js/main.js"></script>
-    <script src="../js/siniorliving.js"></script>
-  </body>
+  <script src="../js/config.js"></script>
+  <script src="../js/main.js"></script>
+  <script src="../js/siniorliving.js"></script>
+</body>
+
 </html>

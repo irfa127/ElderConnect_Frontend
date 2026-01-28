@@ -1,4 +1,3 @@
-const API_URL = "http://localhost:8000";
 
 document.addEventListener("DOMContentLoaded", async () => {
   const userStr = localStorage.getItem("user");

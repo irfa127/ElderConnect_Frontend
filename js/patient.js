@@ -1,17 +1,16 @@
-const API_URL = "http://localhost:8000";
-      let isRequestInProgress = false; // every 5 second dashboard refresh aagum
-      let currentUser = null; // Global variable to store logged-in user
+let isRequestInProgress = false;
+let currentUser = null;
 
-      document.addEventListener("DOMContentLoaded", () => {
-        const userStr = localStorage.getItem("user");
-        if (!userStr) {
-          window.location.href = "login.html";
-          return;
-        }
-        currentUser = JSON.parse(userStr);
+document.addEventListener("DOMContentLoaded", () => {
+  const userStr = localStorage.getItem("user");
+  if (!userStr) {
+    window.location.href = "login.html";
+    return;
+  }
+  currentUser = JSON.parse(userStr);
 
-        if (currentUser.role !== "patient") {
-          document.body.innerHTML = `
+  if (currentUser.role !== "patient") {
+    document.body.innerHTML = `
             <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; background:#f8fafc; font-family:sans-serif;">
                 <div style="background:white; padding:40px; border-radius:20px; box-shadow:0 10px 25px -5px rgba(0,0,0,0.1); text-align:center; max-width:400px;">
                     <div style="width:60px; height:60px; background:#fee2e2; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
@@ -28,140 +27,140 @@ const API_URL = "http://localhost:8000";
                 </div>
             </div>
           `;
-          return;
+    return;
+  }
+
+  document.getElementById("user-greeting").innerText =
+    `Hello, ${currentUser.full_name} 👋`;
+
+  refreshDashboard(currentUser.id);
+
+  setInterval(() => {
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) {
+      window.location.href = "login.html";
+      return;
+    }
+    const parsed = JSON.parse(storedUser);
+    if (parsed.id !== currentUser.id) {
+      console.warn("Session changed, reloading...");
+      window.location.reload();
+      return;
+    }
+    refreshDashboard(currentUser.id);
+  }, 5000);
+});
+
+async function refreshDashboard(userId) {
+  if (isRequestInProgress) return;
+  isRequestInProgress = true;
+
+  try {
+    console.log("Fetching appointments for patient:", userId);
+    const aptResponse = await fetch(
+      `${API_URL}/appointments/patient/${userId}?t=${new Date().getTime()}`, // ?t= browser cache avoid panna
+    );
+    if (aptResponse.ok) {
+      const appointments = await aptResponse.json();
+
+      const activeStatuses = [
+        "pending",
+        "confirmed",
+        "on-the-way",
+        "arrived",
+      ];
+      const activeApts = appointments.filter((a) =>
+        activeStatuses.includes(a.status),
+      );
+
+      activeApts.sort((a, b) => {
+        const priority = {
+          arrived: 4,
+          "on-the-way": 3,
+          confirmed: 2,
+          pending: 1,
+        };
+
+        if (priority[b.status] !== priority[a.status]) {
+          return priority[b.status] - priority[a.status];
         }
 
-        document.getElementById("user-greeting").innerText =
-          `Hello, ${currentUser.full_name} 👋`;
-
-        refreshDashboard(currentUser.id);
-
-        setInterval(() => {
-          const storedUser = localStorage.getItem("user");
-          if (!storedUser) {
-            window.location.href = "login.html";
-            return;
-          }
-          const parsed = JSON.parse(storedUser);
-          if (parsed.id !== currentUser.id) {
-            console.warn("Session changed, reloading...");
-            window.location.reload();
-            return;
-          }
-          refreshDashboard(currentUser.id);
-        }, 5000);
+        return b.id - a.id;
       });
 
-      async function refreshDashboard(userId) {
-        if (isRequestInProgress) return;
-        isRequestInProgress = true;
+      const activeApt = activeApts.length > 0 ? activeApts[0] : null;
 
-        try {
-          console.log("Fetching appointments for patient:", userId);
-          const aptResponse = await fetch(
-            `${API_URL}/appointments/patient/${userId}?t=${new Date().getTime()}`, // ?t= browser cache avoid panna
-          );
-          if (aptResponse.ok) {
-            const appointments = await aptResponse.json();
+      const warningEl = document.getElementById("nurseBusyWarning");
+      if (warningEl) warningEl.style.display = "none";
 
-            const activeStatuses = [
-              "pending",
-              "confirmed",
-              "on-the-way",
-              "arrived",
-            ];
-            const activeApts = appointments.filter((a) =>
-              activeStatuses.includes(a.status),
+      if (
+        activeApt &&
+        (activeApt.status === "pending" ||
+          activeApt.status === "confirmed")
+      ) {
+        (async () => {
+          try {
+            const nurseApptsRes = await fetch(
+              `${API_URL}/appointments/nurse/${activeApt.nurse_id}`,
             );
+            if (nurseApptsRes.ok) {
+              const nurseAppts = await nurseApptsRes.json();
 
-            activeApts.sort((a, b) => {
-              const priority = {
-                arrived: 4,
-                "on-the-way": 3,
-                confirmed: 2,
-                pending: 1,
-              };
+              //some() na Oru appointment-achum match aanaa TRUE
+              const isBusy = nurseAppts.some((apt) => {
+                if (apt.id === activeApt.id) return false;
 
-              if (priority[b.status] !== priority[a.status]) {
-                return priority[b.status] - priority[a.status];
+                const isActive = ["ON_THE_WAY", "ARRIVED"].includes(
+                  apt.status.toUpperCase(),
+                );
+                if (!isActive) return false;
+
+                const date1 = new Date(
+                  apt.appointment_date,
+                ).toDateString();
+                const date2 = new Date(
+                  activeApt.appointment_date,
+                ).toDateString();
+
+                return (
+                  date1 === date2 &&
+                  apt.appointment_time === activeApt.appointment_time
+                );
+              });
+
+              if (isBusy && warningEl) {
+                warningEl.style.display = "block";
               }
-
-              return b.id - a.id;
-            });
-
-            const activeApt = activeApts.length > 0 ? activeApts[0] : null;
-
-            const warningEl = document.getElementById("nurseBusyWarning");
-            if (warningEl) warningEl.style.display = "none";
-            
-            if (
-              activeApt &&
-              (activeApt.status === "pending" ||
-                activeApt.status === "confirmed")
-            ) {
-              (async () => {
-                try {
-                  const nurseApptsRes = await fetch(
-                    `${API_URL}/appointments/nurse/${activeApt.nurse_id}`,
-                  );
-                  if (nurseApptsRes.ok) {
-                    const nurseAppts = await nurseApptsRes.json();
-
-                    //some() na Oru appointment-achum match aanaa TRUE
-                    const isBusy = nurseAppts.some((apt) => {
-                      if (apt.id === activeApt.id) return false;
-
-                      const isActive = ["ON_THE_WAY", "ARRIVED"].includes(
-                        apt.status.toUpperCase(),
-                      );
-                      if (!isActive) return false;
-
-                      const date1 = new Date(
-                        apt.appointment_date,
-                      ).toDateString();
-                      const date2 = new Date(
-                        activeApt.appointment_date,
-                      ).toDateString();
-
-                      return (
-                        date1 === date2 &&
-                        apt.appointment_time === activeApt.appointment_time
-                      );
-                    });
-
-                    if (isBusy && warningEl) {
-                      warningEl.style.display = "block";
-                    }
-                  }
-                } catch (e) {
-                  console.error("Error checking nurse availability", e);
-                }
-              })();
             }
-
-            if (!activeApt) {
-              document.querySelector(".page-title + p").innerText =
-                "You have no active appointments right now.";
-            }
+          } catch (e) {
+            console.error("Error checking nurse availability", e);
           }
+        })();
+      }
 
-          // Fetch Vitals
-          const vitalsResponse = await fetch(
-            `${API_URL}/vitals/patient/${userId}`,
-          );
-          if (vitalsResponse.ok) {
-            const vitals = await vitalsResponse.json();
-            if (vitals.length > 0) {
-              const latest = vitals[0];
+      if (!activeApt) {
+        document.querySelector(".page-title + p").innerText =
+          "You have no active appointments right now.";
+      }
+    }
 
-              document.getElementById("dash-bp").innerText =
-                latest.blood_pressure || "--";
-              document.getElementById("dash-hr").innerHTML =
-                `${latest.heart_rate || "--"} <small style="font-size: 1rem">BPM</small>`;
-              document.getElementById("dash-sugar").innerHTML =
-                `${latest.sugar_level || "--"} <small style="font-size: 1rem">mg/dL</small>`;
+    // Fetch Vitals
+    const vitalsResponse = await fetch(
+      `${API_URL}/vitals/patient/${userId}`,
+    );
+    if (vitalsResponse.ok) {
+      const vitals = await vitalsResponse.json();
+      if (vitals.length > 0) {
+        const latest = vitals[0];
 
-              document.getElementById("reportsList").innerHTML = `
+        document.getElementById("dash-bp").innerText =
+          latest.blood_pressure || "--";
+        document.getElementById("dash-hr").innerHTML =
+          `${latest.heart_rate || "--"} <small style="font-size: 1rem">BPM</small>`;
+        document.getElementById("dash-sugar").innerHTML =
+          `${latest.sugar_level || "--"} <small style="font-size: 1rem">mg/dL</small>`;
+
+        document.getElementById("reportsList").innerHTML = `
                       <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border);">
                         <i class="fas fa-file-medical-alt" style="color: var(--primary); font-size: 1.5rem"></i>
                         <div>
@@ -170,33 +169,33 @@ const API_URL = "http://localhost:8000";
                         </div>
                       </li>
                  `;
-            }
-          }
+      }
+    }
 
-          // Fetch Inquiries (For OAH Notification)
-          const inqResponse = await fetch(
-            `${API_URL}/inquiries/patient/${userId}`,
-          );
-          if (inqResponse.ok) {
-            const inquiries = await inqResponse.json();
-            const acceptedInq = inquiries.find((i) => i.status === "accepted");
+    // Fetch Inquiries (For OAH Notification)
+    const inqResponse = await fetch(
+      `${API_URL}/inquiries/patient/${userId}`,
+    );
+    if (inqResponse.ok) {
+      const inquiries = await inqResponse.json();
+      const acceptedInq = inquiries.find((i) => i.status === "accepted");
 
-            if (acceptedInq) {
-              const comm = acceptedInq.community || {};
-              const applicantName = currentUser.full_name || "Applicant";
-              const applicantEmail = currentUser.email || "";
-            
-              // Remove existing notice if present
-              const existingNotice = document.getElementById("oahNoticeContainer");
-              if (existingNotice) {
-                existingNotice.remove();
-              }
-              
-              const section = document.createElement("div");
-              section.id = "oahNoticeContainer";
-              section.className = "animate-slide";
-              section.style.marginTop = "30px";
-              section.innerHTML = `
+      if (acceptedInq) {
+        const comm = acceptedInq.community || {};
+        const applicantName = currentUser.full_name || "Applicant";
+        const applicantEmail = currentUser.email || "";
+
+        // Remove existing notice if present
+        const existingNotice = document.getElementById("oahNoticeContainer");
+        if (existingNotice) {
+          existingNotice.remove();
+        }
+
+        const section = document.createElement("div");
+        section.id = "oahNoticeContainer";
+        section.className = "animate-slide";
+        section.style.marginTop = "30px";
+        section.innerHTML = `
                     <div class="glass-card" style="background: #ecfdf5; border-color: #a7f3d0; display: flex; gap: 20px; align-items: center;">
                        <img src="${comm.image_url || "https://via.placeholder.com/100"}" 
                             style="width: 80px; height: 80px; border-radius: 12px; object-fit: cover;" />
@@ -219,83 +218,83 @@ const API_URL = "http://localhost:8000";
                        </div>
                     </div>
                  `;
-              
-              // Try multiple insertion points
-              let inserted = false;
-              
-              // Try inserting after liveTrackingContainer
-              const tracker = document.getElementById("liveTrackingContainer");
-              if (tracker && tracker.parentNode) {
-                tracker.parentNode.insertBefore(section, tracker.nextSibling);
-                inserted = true;
-              }
-              
-              // If that fails, try inserting at the beginning of main content
-              if (!inserted) {
-                const mainContent = document.querySelector(".main-content");
-                if (mainContent) {
-                  mainContent.insertBefore(section, mainContent.firstChild);
-                  inserted = true;
-                }
-              }
-              
-              // If still not inserted, append to body
-              if (!inserted) {
-                document.body.appendChild(section);
-              }
-            }
+
+        // Try multiple insertion points
+        let inserted = false;
+
+        // Try inserting after liveTrackingContainer
+        const tracker = document.getElementById("liveTrackingContainer");
+        if (tracker && tracker.parentNode) {
+          tracker.parentNode.insertBefore(section, tracker.nextSibling);
+          inserted = true;
+        }
+
+        // If that fails, try inserting at the beginning of main content
+        if (!inserted) {
+          const mainContent = document.querySelector(".main-content");
+          if (mainContent) {
+            mainContent.insertBefore(section, mainContent.firstChild);
+            inserted = true;
           }
-        } catch (e) {
-          console.error("Auto-refresh error:", e);
-        } finally {
-          isRequestInProgress = false;
+        }
+
+        // If still not inserted, append to body
+        if (!inserted) {
+          document.body.appendChild(section);
         }
       }
+    }
+  } catch (e) {
+    console.error("Auto-refresh error:", e);
+  } finally {
+    isRequestInProgress = false;
+  }
+}
 
-      function updateTimeline(status) {
-        const map = {
-          pending: 0,
-          confirmed: 10,
-          "on-the-way": 40,
-          arrived: 75,
-          completed: 100,
-        };
-        const percent = map[status] || 0;
+function updateTimeline(status) {
+  const map = {
+    pending: 0,
+    confirmed: 10,
+    "on-the-way": 40,
+    arrived: 75,
+    completed: 100,
+  };
+  const percent = map[status] || 0;
 
-        // Update Progress Bar
-        const bar = document.getElementById("progress-bar");
-        if (bar) bar.style.width = percent + "%";
+  // Update Progress Bar
+  const bar = document.getElementById("progress-bar");
+  if (bar) bar.style.width = percent + "%";
 
-        // Reset Icons
-        ["icon-way", "icon-arrived", "icon-completed"].forEach((id) => {
-          const el = document.getElementById(id);
-          if (el) el.classList.remove("active", "completed");
-        });
+  // Reset Icons
+  ["icon-way", "icon-arrived", "icon-completed"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove("active", "completed");
+  });
 
-        // Update Text & Icons
-        const statusText = document.getElementById("status-text");
-        const etaText = document.getElementById("txt-eta");
+  // Update Text & Icons
+  const statusText = document.getElementById("status-text");
+  const etaText = document.getElementById("txt-eta");
 
-        if (status === "on-the-way") {
-          document.getElementById("icon-way").classList.add("active");
-          statusText.innerText = "Nurse is on the way";
-          etaText.innerText = "ETA: 10 Mins";
-        } else if (status === "arrived") {
-          document.getElementById("icon-way").classList.add("completed");
-          document.getElementById("icon-arrived").classList.add("active");
-          statusText.innerText = "Nurse has arrived!";
-          etaText.innerText = "Arrived";
-        } else if (status === "completed") {
-          document.getElementById("icon-way").classList.add("completed");
-          document.getElementById("icon-arrived").classList.add("completed");
-          document.getElementById("icon-completed").classList.add("completed");
-          statusText.innerText = "Visit Completed";
-          etaText.innerText = "Completed";
-        } else if (status === "confirmed") {
-          statusText.innerText = "Appointment Confirmed";
-          etaText.innerText = "Scheduled";
-        } else {
-          statusText.innerText = "Waiting for confirmation...";
-          etaText.innerText = "Pending";
-        }
-      }
+  if (status === "on-the-way") {
+    document.getElementById("icon-way").classList.add("active");
+    statusText.innerText = "Nurse is on the way";
+    etaText.innerText = "ETA: 10 Mins";
+  } else if (status === "arrived") {
+    document.getElementById("icon-way").classList.add("completed");
+    document.getElementById("icon-arrived").classList.add("active");
+    statusText.innerText = "Nurse has arrived!";
+    etaText.innerText = "Arrived";
+  } else if (status === "completed") {
+    document.getElementById("icon-way").classList.add("completed");
+    document.getElementById("icon-arrived").classList.add("completed");
+    document.getElementById("icon-completed").classList.add("completed");
+    statusText.innerText = "Visit Completed";
+    etaText.innerText = "Completed";
+  } else if (status === "confirmed") {
+    statusText.innerText = "Appointment Confirmed";
+    etaText.innerText = "Scheduled";
+  } else {
+    statusText.innerText = "Waiting for confirmation...";
+    etaText.innerText = "Pending";
+  }
+}

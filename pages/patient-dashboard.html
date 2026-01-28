@@ -1,168 +1,129 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard | ElderConnect Patient</title>
-    <link rel="stylesheet" href="../css/style.css" />
-    <link rel="stylesheet" href="../css/patient.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-  </head>
 
-  <body>
-    <div class="app-container">
-      <div class="sidebar">
-        <a href="index.html" class="nav-brand">
-          <i class="fas fa-hand-holding-medical"></i> ElderConnect
-        </a>
-        <ul class="nav-menu">
-          <li class="nav-item">
-            <a href="patient-dashboard.html" class="nav-link active"
-              ><i class="fas fa-home"></i> Home</a
-            >
-          </li>
-          <li class="nav-item">
-            <a href="patient-appointments.html" class="nav-link"
-              ><i class="fas fa-calendar-check"></i> Appointments</a
-            >
-          </li>
-          <li class="nav-item">
-            <a href="patient-senior-living.html" class="nav-link"
-              ><i class="fas fa-hotel"></i> Senior Living</a
-            >
-          </li>
-          <li class="nav-item">
-            <a href="patient-vitals.html" class="nav-link"
-              ><i class="fas fa-chart-line"></i> Health Vitals</a
-            >
-          </li>
-          <li class="nav-item">
-            <a href="patient-profile.html" class="nav-link"
-              ><i class="fas fa-user-circle"></i> My Profile</a
-            >
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link logout-link"
-              ><i class="fas fa-sign-out-alt"></i> Logout</a
-            >
-          </li>
-        </ul>
-      </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard | ElderConnect Patient</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/patient.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
 
-      <main class="main-content">
-        <header class="section-head">
-          <div>
-            <h1 class="page-title" id="user-greeting">Hello, Patient 👋</h1>
-            <p style="color: var(--text-muted); margin-top: 5px">
-              You have one appointment scheduled for today.
-            </p>
-          </div>
+<body>
+  <div class="app-container">
+    <div class="sidebar">
+      <a href="index.html" class="nav-brand">
+        <i class="fas fa-hand-holding-medical"></i> ElderConnect
+      </a>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a href="patient-dashboard.html" class="nav-link active"><i class="fas fa-home"></i> Home</a>
+        </li>
+        <li class="nav-item">
+          <a href="patient-appointments.html" class="nav-link"><i class="fas fa-calendar-check"></i> Appointments</a>
+        </li>
+        <li class="nav-item">
+          <a href="patient-senior-living.html" class="nav-link"><i class="fas fa-hotel"></i> Senior Living</a>
+        </li>
+        <li class="nav-item">
+          <a href="patient-vitals.html" class="nav-link"><i class="fas fa-chart-line"></i> Health Vitals</a>
+        </li>
+        <li class="nav-item">
+          <a href="patient-profile.html" class="nav-link"><i class="fas fa-user-circle"></i> My Profile</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </li>
+      </ul>
+    </div>
 
-          <div style="display: flex; gap: 15px">
-            <img
-              id="user-avatar"
-              src="https://ui-avatars.com/api/?name=User&background=eff6ff&color=3b82f6"
-              alt="Profile"
-              style="
+    <main class="main-content">
+      <header class="section-head">
+        <div>
+          <h1 class="page-title" id="user-greeting">Hello, Patient 👋</h1>
+          <p style="color: var(--text-muted); margin-top: 5px">
+            You have one appointment scheduled for today.
+          </p>
+        </div>
+
+        <div style="display: flex; gap: 15px">
+          <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=eff6ff&color=3b82f6" alt="Profile"
+            style="
                 width: 48px;
                 height: 48px;
                 border-radius: 12px;
                 border: 2px solid white;
                 box-shadow: var(--card-shadow);
-              "
-            />
-          </div>
-        </header>
+              " />
+        </div>
+      </header>
 
-        <div
-          id="liveTrackingContainer"
-          class="tracking-container animate-slide"
-          style="display: none"
-        >
-          <div class="tracking-title">
-            <span class="badge badge-success" style="padding: 5px 10px"
-              >LIVE</span
-            >
-            Nurse Arrival Tracking
-            <span
-              id="txt-eta"
-              style="
+      <div id="liveTrackingContainer" class="tracking-container animate-slide" style="display: none">
+        <div class="tracking-title">
+          <span class="badge badge-success" style="padding: 5px 10px">LIVE</span>
+          Nurse Arrival Tracking
+          <span id="txt-eta" style="
                 margin-left: auto;
                 color: var(--primary);
                 font-size: 0.9rem;
-              "
-              >Estimated: 15 mins</span
-            >
+              ">Estimated: 15 mins</span>
+        </div>
+
+        <div class="timeline">
+          <div class="timeline-line">
+            <div class="line-progress" id="progress-bar"></div>
           </div>
 
-          <div class="timeline">
-            <div class="timeline-line">
-              <div class="line-progress" id="progress-bar"></div>
+          <div class="timeline-step">
+            <div class="step-icon completed">
+              <i class="fas fa-calendar-check"></i>
             </div>
-
-            <div class="timeline-step">
-              <div class="step-icon completed">
-                <i class="fas fa-calendar-check"></i>
-              </div>
-              <div class="step-label">Booked</div>
-            </div>
-
-            <div class="timeline-step">
-              <div class="step-icon" id="icon-way">
-                <i class="fas fa-car-side"></i>
-              </div>
-              <div class="step-label">On Way</div>
-            </div>
-
-            <div class="timeline-step">
-              <div class="step-icon" id="icon-arrived">
-                <i class="fas fa-map-marker-alt"></i>
-              </div>
-              <div class="step-label">Arrived</div>
-            </div>
-
-            <div class="timeline-step">
-              <div class="step-icon" id="icon-completed">
-                <i class="fas fa-file-medical"></i>
-              </div>
-              <div class="step-label">Complete</div>
-            </div>
+            <div class="step-label">Booked</div>
           </div>
 
-          <div style="margin-top: 30px; text-align: center">
-            <h3
-              id="status-text"
-              style="font-size: 1.1rem; font-weight: 800; color: #1e293b"
-            >
-              Nurse is preparing...
-            </h3>
-            <p style="color: #64748b; font-size: 0.9rem; margin-top: 5px">
-              Dr. Alice Smith •
-              <a href="#" style="color: var(--primary)">Contact</a>
-            </p>
+          <div class="timeline-step">
+            <div class="step-icon" id="icon-way">
+              <i class="fas fa-car-side"></i>
+            </div>
+            <div class="step-label">On Way</div>
+          </div>
+
+          <div class="timeline-step">
+            <div class="step-icon" id="icon-arrived">
+              <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div class="step-label">Arrived</div>
+          </div>
+
+          <div class="timeline-step">
+            <div class="step-icon" id="icon-completed">
+              <i class="fas fa-file-medical"></i>
+            </div>
+            <div class="step-label">Complete</div>
           </div>
         </div>
 
-        <div
-          id="nurseBusyWarning"
-          class="animate-slide"
-          style="display: none; margin-top: 20px"
-        >
-          <div
-            class="glass-card"
-            style="
+        <div style="margin-top: 30px; text-align: center">
+          <h3 id="status-text" style="font-size: 1.1rem; font-weight: 800; color: #1e293b">
+            Nurse is preparing...
+          </h3>
+          <p style="color: #64748b; font-size: 0.9rem; margin-top: 5px">
+            Dr. Alice Smith •
+            <a href="#" style="color: var(--primary)">Contact</a>
+          </p>
+        </div>
+      </div>
+
+      <div id="nurseBusyWarning" class="animate-slide" style="display: none; margin-top: 20px">
+        <div class="glass-card" style="
               background: #fff1f2;
               border-color: #fda4af;
               display: flex;
               gap: 15px;
               align-items: start;
-            "
-          >
-            <div
-              style="
+            ">
+          <div style="
                 background: #fee2e2;
                 width: 40px;
                 height: 40px;
@@ -171,91 +132,75 @@
                 align-items: center;
                 justify-content: center;
                 flex-shrink: 0;
-              "
-            >
-              <i
-                class="fas fa-user-clock"
-                style="color: #be123c; font-size: 1.2rem"
-              ></i>
-            </div>
-            <div>
-              <h3
-                style="
+              ">
+            <i class="fas fa-user-clock" style="color: #be123c; font-size: 1.2rem"></i>
+          </div>
+          <div>
+            <h3 style="
                   color: #be123c;
                   font-weight: 800;
                   font-size: 1rem;
                   margin-bottom: 5px;
-                "
-              >
-                Nurse Currently Busy
-              </h3>
-              <p style="color: #9f1239; font-size: 0.9rem; line-height: 1.5">
-                Your nurse is currently attending another patient at this
-                scheduled time. Please wait, they will update their status soon.
-              </p>
-            </div>
+                ">
+              Nurse Currently Busy
+            </h3>
+            <p style="color: #9f1239; font-size: 0.9rem; line-height: 1.5">
+              Your nurse is currently attending another patient at this
+              scheduled time. Please wait, they will update their status soon.
+            </p>
           </div>
         </div>
+      </div>
 
-        <div class="stats-grid" style="margin-top: 30px">
-          <div class="stat-card">
-            <span class="stat-label">Blood Pressure</span>
-            <div class="stat-value" style="color: var(--primary)" id="dash-bp">
-              --
-            </div>
-            <span class="badge badge-success" id="dash-bp-status">Normal</span>
+      <div class="stats-grid" style="margin-top: 30px">
+        <div class="stat-card">
+          <span class="stat-label">Blood Pressure</span>
+          <div class="stat-value" style="color: var(--primary)" id="dash-bp">
+            --
           </div>
-          <div class="stat-card">
-            <span class="stat-label">Heart Rate</span>
-            <div class="stat-value" style="color: var(--danger)" id="dash-hr">
-              -- <small style="font-size: 1rem">BPM</small>
-            </div>
-            <span class="badge badge-warning" id="dash-hr-status">--</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-label">Last Sugar Level</span>
-            <div
-              class="stat-value"
-              style="color: var(--success)"
-              id="dash-sugar"
-            >
-              -- <small style="font-size: 1rem">mg/dL</small>
-            </div>
-            <span class="badge badge-success" id="dash-sugar-status">--</span>
-          </div>
+          <span class="badge badge-success" id="dash-bp-status">Normal</span>
         </div>
+        <div class="stat-card">
+          <span class="stat-label">Heart Rate</span>
+          <div class="stat-value" style="color: var(--danger)" id="dash-hr">
+            -- <small style="font-size: 1rem">BPM</small>
+          </div>
+          <span class="badge badge-warning" id="dash-hr-status">--</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Last Sugar Level</span>
+          <div class="stat-value" style="color: var(--success)" id="dash-sugar">
+            -- <small style="font-size: 1rem">mg/dL</small>
+          </div>
+          <span class="badge badge-success" id="dash-sugar-status">--</span>
+        </div>
+      </div>
 
-        <div
-          style="
+      <div style="
             display: grid;
             grid-template-columns: 2fr 1fr;
             gap: 24px;
             margin-top: 30px;
-          "
-        >
-          <div class="glass-card animate-slide">
-            <h3
-              style="font-weight: 800; font-size: 1.2rem; margin-bottom: 20px"
-            >
-              Recent Reports
-            </h3>
-            <ul style="list-style: none" id="reportsList">
-              <li style="text-align: center; color: var(--text-muted)">
-                No reports available.
-              </li>
-            </ul>
-            <a
-              href="patient-vitals.html"
-              class="btn btn-outline"
-              style="width: 100%; justify-content: center"
-              >View All Records</a
-            >
-          </div>
+          ">
+        <div class="glass-card animate-slide">
+          <h3 style="font-weight: 800; font-size: 1.2rem; margin-bottom: 20px">
+            Recent Reports
+          </h3>
+          <ul style="list-style: none" id="reportsList">
+            <li style="text-align: center; color: var(--text-muted)">
+              No reports available.
+            </li>
+          </ul>
+          <a href="patient-vitals.html" class="btn btn-outline" style="width: 100%; justify-content: center">View All
+            Records</a>
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
+  </div>
 
-    <script src="../js/main.js"></script>
-    <script src="../js/patient.js"></script>
-  </body>
+  <script src="../js/config.js"></script>
+  <script src="../js/main.js"></script>
+  <script src="../js/patient.js"></script>
+</body>
+
 </html>

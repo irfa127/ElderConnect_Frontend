@@ -10,28 +10,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const user = JSON.parse(userStr);
 
-  // Ensure only nurses can access this dashboard
+
   if (user.role !== "nurse") {
     alert("Access denied. Only nurses can view this dashboard.");
     window.location.href = "login.html";
     return;
   }
 
-  // Load dashboard if on nurse dashboard page
-  // if (window.location.pathname.includes("nurse-dashboard.html")) {
-  //   loadNurseDashboard(user);
-  // }
-
-  // Appointment Management
-  // Appointment Management - SHARED API CALL
   window.updateStatus = async (id, newStatus) => {
-    // If called with single string arg (old mock way), ignore or handle gracefully
+
     if (typeof id === 'string') return;
 
     if (!confirm(`Update status to ${newStatus}?`)) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/appointments/${id}`, {
+      const response = await fetch(`${API_URL}/appointments/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
@@ -39,15 +32,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (response.ok) {
         alert(`Status successfully updated to ${newStatus}`);
-        location.reload(); // Refresh to show new status
+        location.reload();
       } else {
         const err = await response.json();
         const errorMsg = err.detail || "";
 
-        // Specific handling for conflict error - SILENT FAIL for Nurse
+
         if (response.status === 400 && errorMsg.includes("This nurse is already attending another patient")) {
           console.warn("Update blocked: This nurse is already attending another patient.");
-          // No alert shown
+
         } else {
           alert("Failed to update status: " + (errorMsg || "Server Error"));
         }
@@ -71,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function loadNurseDashboard(user) {
   try {
-    const response = await fetch(`http://localhost:8000/appointments/nurse/${user.id}`);
+    const response = await fetch(`${API_URL}/appointments/nurse/${user.id}`);
     if (!response.ok) throw new Error("Failed to fetch dashboard data");
 
     const appointments = await response.json();

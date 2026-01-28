@@ -110,7 +110,7 @@ async function refreshUserData(userId) {
   }
 
   try {
-    const response = await fetch(`http://localhost:8000/users/${userId}`);
+    const response = await fetch(`${API_URL}/users/${userId}`);
     if (response.ok) {
       const updatedUser = await response.json();
       localStorage.setItem("user", JSON.stringify(updatedUser)); // Update LocalStorage

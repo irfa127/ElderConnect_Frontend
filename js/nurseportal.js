@@ -1,4 +1,3 @@
-const API_URL = "http://localhost:8000";
 let currentUser = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -44,24 +43,20 @@ async function fetchAppointments() {
 
       const displayStatus = apt.status.replace(/-/g, " ").toUpperCase();
 
-      
+
       const statusButtons = `
               <div class="status-timeline" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
-                 <button class="btn-step ${
-                   apt.status === "ON_THE_WAY" ? "completed" : ""
-                 }" onclick="updateStatus(${apt.id}, 'ON_THE_WAY')">
+                 <button class="btn-step ${apt.status === "ON_THE_WAY" ? "completed" : ""
+        }" onclick="updateStatus(${apt.id}, 'ON_THE_WAY')">
                    <i class="fas fa-car-side"></i> On Way
                  </button>
-                 <button class="btn-step ${
-                   apt.status === "ARRIVED" ? "completed" : ""
-                 }" onclick="updateStatus(${apt.id}, 'ARRIVED')">
+                 <button class="btn-step ${apt.status === "ARRIVED" ? "completed" : ""
+        }" onclick="updateStatus(${apt.id}, 'ARRIVED')">
                    <i class="fas fa-map-pin"></i> Arrived
                  </button>
-                 <button class="btn-step ${
-                   apt.status === "COMPLETED" ? "completed" : ""
-                 }" onclick="openUploadModal('${apt.id}', 'Patient #${
-                   apt.patient_id
-                 }')">
+                 <button class="btn-step ${apt.status === "COMPLETED" ? "completed" : ""
+        }" onclick="openUploadModal('${apt.id}', 'Patient #${apt.patient_id
+        }')">
                    <i class="fas fa-check-circle"></i> Complete
                  </button>
               </div>
@@ -132,7 +127,7 @@ async function updateStatus(id, newStatus) {
     });
     if (response.ok) {
       showToast(`Status updated to ${newStatus}`);
-      fetchAppointments(); 
+      fetchAppointments();
     } else {
       showToast("Failed to update status");
     }
@@ -144,7 +139,7 @@ async function updateStatus(id, newStatus) {
 function openUploadModal(id, name) {
   document.getElementById("targetPatientName").innerText = name;
   document.getElementById("targetAppointmentId").value = id;
- 
+
   const pid = name.split("#")[1] || "";
   document.getElementById("targetPatientId").value = pid;
   openModal("uploadModal");
@@ -161,7 +156,7 @@ async function finalizeUpload() {
   const temp = document.getElementById("vitalTemp").value;
 
   try {
-   
+
     if (bp || hr || sugar) {
       const vitalPayload = {
         patient_id: parseInt(patientId),
@@ -186,7 +181,7 @@ async function finalizeUpload() {
 
     let reportNote = notes;
 
-  
+
     const response = await fetch(`${API_URL}/appointments/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },

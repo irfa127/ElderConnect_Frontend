@@ -1,21 +1,20 @@
- const API_URL = "http://localhost:8000";
 
-        document.addEventListener("DOMContentLoaded", async () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const id = urlParams.get("id");
-            const container = document.getElementById("detailsContainer");
+document.addEventListener("DOMContentLoaded", async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get("id");
+    const container = document.getElementById("detailsContainer");
 
-            if (!id) {
-                container.innerHTML = "<p>Community not specified.</p>";
-                return;
-            }
+    if (!id) {
+        container.innerHTML = "<p>Community not specified.</p>";
+        return;
+    }
 
-            try {
-                const response = await fetch(`${API_URL}/communities/${id}`);
-                if (!response.ok) throw new Error("Failed to fetch details");
-                const comm = await response.json();
+    try {
+        const response = await fetch(`${API_URL}/communities/${id}`);
+        if (!response.ok) throw new Error("Failed to fetch details");
+        const comm = await response.json();
 
-                container.innerHTML = `
+        container.innerHTML = `
           <div class="glass-card" style="margin-bottom: 24px;">
              <img src="${comm.image_url || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800'}" 
                   style="width: 100%; height: 300px; object-fit: cover; border-radius: 12px; margin-bottom: 20px;" />
@@ -44,61 +43,59 @@
           </div>
         `;
 
-                // Pre-fill user data if desired
-                const userStr = localStorage.getItem("user");
-                if (userStr) {
-                    const user = JSON.parse(userStr);
-                    // Could store user info in form hidden fields if needed, 
-                    // but inquiry needs applicant_name/phone/email from user object.
-                    // We will handle this in submit.
-                }
 
-            } catch (e) {
-                container.innerHTML = "<p style='color: red;'>Error loading details.</p>";
-            }
+        const userStr = localStorage.getItem("user");
+        if (userStr) {
+            const user = JSON.parse(userStr);
 
-            // Inquiry Form Handler
-            document.getElementById("inquiryForm").addEventListener("submit", async (e) => {
-                e.preventDefault();
-                const userStr = localStorage.getItem("user");
-                if (!userStr) { alert("Please login first"); return; }
-                const user = JSON.parse(userStr);
-
-                const communityId = document.getElementById("communityId").value;
-                const data = {
-                    community_id: communityId,
-                    patient_id: user.id,
-                    applicant_name: user.full_name,
-                    applicant_email: user.email,
-                    applicant_phone: user.phone_number || "N/A",
-                    resident_name: document.getElementById("residentName").value,
-                    resident_age: document.getElementById("residentAge").value,
-                    relation: document.getElementById("relation").value,
-                    medical_needs: document.getElementById("medicalNeeds").value,
-                    status: "pending"
-                };
-
-                try {
-                    const res = await fetch(`${API_URL}/inquiries/`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(data)
-                    });
-                    if (res.ok) {
-                        alert("Inquiry Sent Successfully! The manager will contact you.");
-                        closeModal("inquiryModal");
-                    } else {
-                        const err = await res.json();
-                        alert("Failed: " + (err.detail || "Server Error"));
-                    }
-                } catch (ex) {
-                    console.error(ex);
-                    alert("Connection Error");
-                }
-            });
-        });
-
-        function openInquiryModal(id) {
-            document.getElementById("communityId").value = id;
-            openModal("inquiryModal");
         }
+
+    } catch (e) {
+        container.innerHTML = "<p style='color: red;'>Error loading details.</p>";
+    }
+
+    // Inquiry Form Handler
+    document.getElementById("inquiryForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const userStr = localStorage.getItem("user");
+        if (!userStr) { alert("Please login first"); return; }
+        const user = JSON.parse(userStr);
+
+        const communityId = document.getElementById("communityId").value;
+        const data = {
+            community_id: communityId,
+            patient_id: user.id,
+            applicant_name: user.full_name,
+            applicant_email: user.email,
+            applicant_phone: user.phone_number || "N/A",
+            resident_name: document.getElementById("residentName").value,
+            resident_age: document.getElementById("residentAge").value,
+            relation: document.getElementById("relation").value,
+            medical_needs: document.getElementById("medicalNeeds").value,
+            status: "pending"
+        };
+
+        try {
+            const res = await fetch(`${API_URL}/inquiries/`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+            if (res.ok) {
+                alert("Inquiry Sent Successfully! The manager will contact you.");
+                closeModal("inquiryModal");
+            } else {
+                const err = await res.json();
+                alert("Failed: " + (err.detail || "Server Error"));
+            }
+        } catch (ex) {
+            console.error(ex);
+            alert("Connection Error");
+        }
+    });
+});
+
+function openInquiryModal(id) {
+    document.getElementById("communityId").value = id;
+    openModal("inquiryModal");
+}

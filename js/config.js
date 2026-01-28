@@ -1,2 +1,2 @@
 // API Configuration
-const API_URL = "http://localhost:8000";
+window.API_URL = "https://elderconnect-backend-1.onrender.com";
